@@ -1,0 +1,92 @@
+<%- include('../partials/header') %>
+
+<div class="dashboard-layout">
+  <main class="dashboard-main">
+    <h1>User Ratings Analysis</h1>
+
+    <form method="GET" action="/admin/ratings" style="margin-bottom: 20px;">
+      <label for="time_filter">Filter by:</label>
+      <select name="time_filter" id="time_filter" onchange="this.form.submit()">
+        <option value="all" <%= typeof currentTimeFilter !== 'undefined' && currentTimeFilter === 'all' ? 'selected' : '' %>>All Time</option>
+        <option value="this_year" <%= typeof currentTimeFilter !== 'undefined' && currentTimeFilter === 'this_year' ? 'selected' : '' %>>This Year</option>
+        <option value="this_month" <%= typeof currentTimeFilter !== 'undefined' && currentTimeFilter === 'this_month' ? 'selected' : '' %>>This Month</option>
+        <option value="this_week" <%= typeof currentTimeFilter !== 'undefined' && currentTimeFilter === 'this_week' ? 'selected' : '' %>>This Week</option>
+      </select>
+    </form>
+
+    <div style="width: 50%; max-width: 400px; margin: auto; margin-bottom: 40px;">
+        <canvas id="ratingsChart"></canvas>
+    </div>
+
+    <h2>Individual Ratings</h2>
+    <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+      <thead>
+        <tr style="background-color: #f2f2f2;">
+          <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Rating</th>
+          <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Comment</th>
+          <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Date Submitted</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if(typeof ratings !== 'undefined' && ratings.length > 0) { %>
+          <% ratings.forEach(rating => { %>
+            <tr>
+              <td style="padding: 10px; border: 1px solid #ddd; font-size: 1.2rem; color: #ffc700;"><%= '★'.repeat(rating.rating) %><span style="color: #ccc;"><%= '★'.repeat(5 - rating.rating) %></span></td>
+              <td style="padding: 10px; border: 1px solid #ddd;"><%= rating.message %></td>
+              <td style="padding: 10px; border: 1px solid #ddd;"><%= new Date(rating.created_at).toLocaleString() %></td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="3" style="padding: 10px; border: 1px solid #ddd; text-align: center;">No ratings found for this period.</td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </main>
+
+  <%- include('../partials/admin-sidebar') %>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('ratingsChart');
+    const chartData = <%- chartData || '{}' %>;
+
+    if (ctx && chartData && chartData.data && chartData.data.length > 0) {
+      new Chart(ctx.getContext('2d'), {
+          type: 'pie',
+          data: {
+              labels: chartData.labels,
+              datasets: [{
+                  label: '# of Votes',
+                  data: chartData.data,
+                  backgroundColor: [
+                      'rgba(255, 206, 86, 0.8)',
+                      'rgba(75, 192, 192, 0.8)',
+                      'rgba(255, 99, 132, 0.8)',
+                      'rgba(54, 162, 235, 0.8)',
+                      'rgba(153, 102, 255, 0.8)'
+                  ],
+                  borderColor: '#fff'
+              }]
+          },
+          options: {
+              responsive: true,
+              plugins: {
+                  legend: {
+                      position: 'top',
+                  },
+                  title: {
+                      display: true,
+                      text: 'Ratings Breakdown'
+                  }
+              }
+          }
+      });
+    }
+  });
+</script>
+
+<%- include('../partials/footer') %>

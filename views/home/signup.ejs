@@ -1,0 +1,29 @@
+<%- include('../partials/header') %>
+
+<div class="container">
+  <h1>Create Your Account</h1>
+  <form>
+    <div>
+      <label for="name">Your Name</label>
+      <input type="text" id="name" name="name" required>
+    </div>
+    <br>
+    <div>
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" required>
+    </div>
+    <br>
+    <div>
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" required>
+    </div>
+    <br>
+    <div>
+      <label for="password-confirm">Confirm Password</label>
+      <input type="password" id="password-confirm" name="passwordConfirm" required>
+    </div>
+    <br>
+    <button type="submit">Create Account</button>
+  </form>
+</div>
+<%- include('../partials/footer') %>

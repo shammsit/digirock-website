@@ -1,0 +1,31 @@
+<%- include('../partials/header') %>
+
+<div class="container">
+  <h1>Feedback and Suggestions</h1>
+  <p>We value your opinion! Please let us know what you think or if you've found a bug.</p>
+
+  <form action="/submit-feedback" method="POST">
+    <div>
+      <label for="name">Your Name (Optional)</label>
+      <input type="text" id="name" name="name">
+    </div>
+    <br>
+    <div>
+        <label for="feedback-type">Type of Feedback</label>
+        <select id="feedback-type" name="feedbackType" style="width: 100%; padding: 8px;">
+            <option>Suggestion</option>
+            <option>Bug Report</option>
+            <option>Praise / Compliment</option>
+            <option>Other</option>
+        </select>
+    </div>
+    <br>
+    <div>
+      <label for="message">Your Message</label>
+      <textarea id="message" name="message" rows="6" required style="width: 100%; padding: 8px;"></textarea>
+    </div>
+    <br>
+    <button type="submit">Submit Feedback</button>
+  </form>
+</div>
+<%- include('../partials/footer') %>

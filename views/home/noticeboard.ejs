@@ -1,0 +1,26 @@
+<%- include('../partials/header') %>
+
+<div class="container">
+  <h1>Noticeboard</h1>
+  <p>Important announcements and updates.</p>
+  <hr>
+
+  <% if(typeof notices !== 'undefined' && notices.length > 0) { %>
+    <% notices.forEach(notice => { %>
+      <div class="notice-item" style="background: #fff; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+        <h3><%= notice.title %></h3>
+        <small><strong>Type:</strong> <%= notice.notice_type %> | <strong>Posted:</strong> <%= new Date(notice.release_time).toLocaleString() %></small>
+        <% if(notice.body_text) { %>
+          <p style="margin-top: 15px;"><%= notice.body_text %></p>
+        <% } %>
+        <% if(notice.attachment_path) { %>
+          <p style="margin-top: 15px;"><a href="<%= notice.attachment_path %>" target="_blank">View Attachment</a></p>
+        <% } %>
+      </div>
+    <% }) %>
+  <% } else { %>
+    <p>There are no active notices at the moment.</p>
+  <% } %>
+</div>
+
+<%- include('../partials/footer') %>

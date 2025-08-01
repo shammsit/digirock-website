@@ -1,0 +1,55 @@
+<%- include('../partials/header') %>
+
+<div class="dashboard-layout">
+  <main class="dashboard-main">
+    <h1>Contact Form Messages</h1>
+
+    <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+      <thead>
+        <tr style="background-color: #f2f2f2;">
+          <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Date</th>
+          <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Name</th>
+          <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Email</th>
+          <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Subject</th>
+          <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Message</th>
+          <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Attachment</th>
+          <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if(typeof messages !== 'undefined' && messages.length > 0) { %>
+          <% messages.forEach(msg => { %>
+            <tr>
+              <td style="padding: 10px; border: 1px solid #ddd;"><%= new Date(msg.created_at).toLocaleString() %></td>
+              <td style="padding: 10px; border: 1px solid #ddd;"><%= msg.name %></td>
+              <td style="padding: 10px; border: 1px solid #ddd;"><%= msg.email %></td>
+              <td style="padding: 10px; border: 1px solid #ddd;"><%= msg.subject %></td>
+              <td style="padding: 10px; border: 1px solid #ddd;"><%= msg.message %></td>
+              <td style="padding: 10px; border: 1px solid #ddd;">
+                <% if(msg.attachment_path) { %>
+                  <a href="<%= msg.attachment_path %>" target="_blank">View File</a>
+                <% } else { %>
+                  No attachment
+                <% } %>
+              </td>
+              <td style="padding: 10px; border: 1px solid #ddd; display: flex; gap: 5px;">
+                <a href="mailto:<%= msg.email %>?subject=Re: <%= msg.subject %>" style="background-color: #007bff; color: white; padding: 5px 10px; border-radius: 5px; text-decoration: none;">Reply</a>
+                <form action="/admin/mails/delete/<%= msg.id %>" method="POST" onsubmit="return confirm('Are you sure?');">
+                  <button type="submit" style="background-color: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">Delete</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="7" style="padding: 10px; border: 1px solid #ddd; text-align: center;">No messages have been submitted yet.</td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </main>
+
+  <%- include('../partials/admin-sidebar') %>
+</div>
+
+<%- include('../partials/footer') %>

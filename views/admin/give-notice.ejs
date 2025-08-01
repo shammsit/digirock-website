@@ -1,0 +1,52 @@
+<%- include('../partials/header') %>
+
+<div class="dashboard-layout">
+  <main class="dashboard-main">
+    <h1>Give a New Notice</h1>
+    <p>Fill out the form below to create a new notice for your users.</p>
+    
+    <form action="/admin/give-notice" method="POST" enctype="multipart/form-data">
+      <div>
+        <label for="notice_type">Notice Type</label>
+        <select name="notice_type" id="notice_type" required style="width: 100%; padding: 8px;">
+          <option>Announcement</option>
+          <option>Information</option>
+          <option>Rules Update</option>
+          <option>Server Down</option>
+          <option>Others</option>
+        </select>
+      </div>
+      <br>
+      <div>
+        <label for="title">Title</label>
+        <input type="text" id="title" name="title" required>
+      </div>
+      <br>
+      <div>
+        <label for="body_text">Message Body (Optional)</label>
+        <textarea id="body_text" name="body_text" rows="8" style="width: 100%; padding: 8px;"></textarea>
+      </div>
+      <br>
+      <div>
+        <label for="attachment">File Attachment (Image or PDF, Optional)</label>
+        <input type="file" id="attachment" name="attachment">
+      </div>
+      <br>
+      <div>
+        <label for="release_time">Release Time</label>
+        <input type="datetime-local" id="release_time" name="release_time" required>
+      </div>
+      <br>
+      <div>
+        <label for="expire_time">Expiry Time (Optional)</label>
+        <input type="datetime-local" id="expire_time" name="expire_time">
+      </div>
+      <br>
+      <button type="submit">Publish Notice</button>
+    </form>
+  </main>
+
+  <%- include('../partials/admin-sidebar') %>
+</div>
+
+<%- include('../partials/footer') %>

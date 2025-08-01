@@ -1,0 +1,25 @@
+<%- include('../partials/header') %>
+
+<div class="container">
+  <h1>Rate Our Website</h1>
+  <p>Your feedback helps us improve. Please let us know how we're doing!</p>
+
+  <form action="/submit-rating" method="POST">
+    <div class="star-rating">
+      <input type="radio" id="5-stars" name="rating" value="5" /><label for="5-stars">★</label>
+      <input type="radio" id="4-stars" name="rating" value="4" /><label for="4-stars">★</label>
+      <input type="radio" id="3-stars" name="rating" value="3" /><label for="3-stars">★</label>
+      <input type="radio" id="2-stars" name="rating" value="2" /><label for="2-stars">★</label>
+      <input type="radio" id="1-star" name="rating" value="1" /><label for="1-star">★</label>
+    </div>
+    <br>
+    <div>
+      <label for="message">Any additional comments?</label>
+      <textarea id="message" name="message" rows="4" style="width: 100%; padding: 8px;"></textarea>
+    </div>
+    <br>
+    <button type="submit">Submit Rating</button>
+  </form>
+</div>
+
+<%- include('../partials/footer') %>

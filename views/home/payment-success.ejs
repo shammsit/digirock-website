@@ -1,0 +1,22 @@
+<%- include('../partials/header') %>
+
+<div class="container" style="text-align: center;">
+  <div style="background: #e8f5e9; color: #2e7d32; padding: 20px; border-radius: 8px; display: inline-block; margin-top: 2rem;">
+    <h1 style="margin: 0; font-size: 2.5rem;">✔ Payment Successful!</h1>
+  </div>
+
+  <div style="background: #fff; padding: 2rem; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); margin-top: 2rem; text-align: left;">
+    <h3>Thank you for your generous support, <%= donation.name %>.</h3>
+    <p>We have successfully received your donation. Here are the details of your transaction:</p>
+    <hr>
+    <p><strong>Payment ID:</strong> <%= donation.payment_id %></p>
+    <p><strong>Amount Paid:</strong> ₹<%= donation.amount %></p>
+    <p><strong>Date:</strong> <%= new Date(donation.created_at).toLocaleString() %></p>
+    <hr>
+    <p>A confirmation has been sent to your email: <strong><%= donation.email %></strong></p>
+  </div>
+
+  <a href="/" style="display: inline-block; margin-top: 2rem; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">Return to Homepage</a>
+</div>
+
+<%- include('../partials/footer') %>

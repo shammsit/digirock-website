@@ -1,0 +1,120 @@
+<%- include('../partials/header') %>
+
+<div class="container">
+  <h1>Donate to the Developer</h1>
+  <p>If you like this website, please consider supporting my work. It helps me cover costs and build more projects.</p>
+  <p>Your support is greatly appreciated! 🙏</p>
+
+  <hr style="margin: 2rem 0;">
+
+  <!-- Donation Form -->
+  <form id="donation-form">
+    <div>
+        <label for="name">Your Name:</label>
+        <input type="text" id="name" name="name" required>
+    </div>
+    <br>
+    <div>
+        <label for="email">Your Email:</label>
+        <input type="email" id="email" name="email" required>
+    </div>
+    <br>
+    <div>
+      <label for="amount">Donation Amount (INR):</label>
+      <input type="number" id="amount" name="amount" min="10" value="51" required style="width: 100%; padding: 8px;">
+    </div>
+    <br>
+    <button type="submit" id="donate-button">Donate Now</button>
+  </form>
+</div>
+
+<!-- Razorpay Checkout Script -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<!-- Payment Logic Script -->
+<script>
+  document.getElementById('donation-form').addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const amount = document.getElementById('amount').value;
+    const donateButton = document.getElementById('donate-button');
+    
+    donateButton.disabled = true;
+    donateButton.textContent = 'Processing...';
+
+    // 1. Create Order on the Server
+    const response = await fetch('/create-order', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ amount, name, email }),
+    });
+
+    if (!response.ok) {
+        alert('Could not create payment order. Please try again.');
+        donateButton.disabled = false;
+        donateButton.textContent = 'Donate Now';
+        return;
+    }
+
+    const order = await response.json();
+
+    // 2. Configure Razorpay Checkout
+    const options = {
+      key: order.key_id,
+      amount: order.amount,
+      currency: 'INR',
+      name: 'digiROCK',
+      description: 'Donation to the Developer',
+      image: '/images/logo.jpg',
+      order_id: order.id,
+      handler: async function (paymentResponse) {
+        // 3. Verify Payment on the Server
+        const verificationResponse = await fetch('/verify-payment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            razorpay_order_id: paymentResponse.razorpay_order_id,
+            razorpay_payment_id: paymentResponse.razorpay_payment_id,
+            razorpay_signature: paymentResponse.razorpay_signature,
+            name: name,
+            email: email,
+            amount: amount,
+          }),
+        });
+
+        // **MODIFIED PART**
+        if (verificationResponse.ok) {
+          // Redirect to the new success page with the payment ID
+          window.location.href = `/payment-success?id=${paymentResponse.razorpay_payment_id}`;
+        } else {
+          alert('Payment verification failed. Please contact support.');
+          donateButton.disabled = false;
+          donateButton.textContent = 'Donate Now';
+        }
+      },
+      prefill: {
+        name: name,
+        email: email,
+      },
+      theme: {
+        color: '#3399cc'
+      },
+      modal: {
+          ondismiss: function() {
+              donateButton.disabled = false;
+              donateButton.textContent = 'Donate Now';
+          }
+      }
+    };
+
+    // 4. Open the Razorpay Checkout Modal
+    const rzp = new Razorpay(options);
+    rzp.open();
+  });
+</script>
+
+<%- include('../partials/footer') %>

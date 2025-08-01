@@ -1,0 +1,49 @@
+<%- include('../partials/header') %>
+
+<div class="dashboard-layout">
+  <main class="dashboard-main">
+    <h1>Donation Submissions</h1>
+
+    <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+      <thead>
+        <tr style="background-color: #f2f2f2;">
+          <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Date</th>
+          <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Name</th>
+          <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Email</th>
+          <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Amount (INR)</th>
+          <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Payment ID</th>
+          <th class="no-print" style="padding: 10px; border: 1px solid #ddd; text-align: left;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if(typeof donations !== 'undefined' && donations.length > 0) { %>
+          <% donations.forEach(donation => { %>
+            <tr>
+              <td style="padding: 10px; border: 1px solid #ddd;"><%= new Date(donation.created_at).toLocaleString() %></td>
+              <td style="padding: 10px; border: 1px solid #ddd;"><%= donation.name %></td>
+              <td style="padding: 10px; border: 1px solid #ddd;"><%= donation.email %></td>
+              <td style="padding: 10px; border: 1px solid #ddd;"><%= donation.amount %></td>
+              <td style="padding: 10px; border: 1px solid #ddd;"><%= donation.payment_id %></td>
+              <td class="no-print" style="padding: 10px; border: 1px solid #ddd; display: flex; gap: 10px; align-items: center;">
+                <!-- NEW: Link to Razorpay Dashboard -->
+                <a href="https://dashboard.razorpay.com/app/payments/<%= donation.payment_id %>" target="_blank" style="background-color: #17a2b8; color: white; padding: 5px 10px; border-radius: 5px; text-decoration: none;">View on RZP</a>
+                
+                <form action="/admin/donations/delete/<%= donation.id %>" method="POST" onsubmit="return confirm('Are you sure you want to delete this donation record?');" style="margin: 0;">
+                  <button type="submit" style="background-color: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">Delete</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="6" style="padding: 10px; border: 1px solid #ddd; text-align: center;">No donations have been submitted yet.</td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </main>
+
+  <%- include('../partials/admin-sidebar') %>
+</div>
+
+<%- include('../partials/footer') %>

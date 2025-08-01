@@ -1,0 +1,261 @@
+/* General Body Styles */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f4;
+  color: #333;
+}
+
+/* Container for Centered Content */
+.container {
+  max-width: 960px;
+  margin: auto;
+  overflow: hidden;
+  padding: 20px;
+}
+
+/* Headings & Paragraphs */
+h1 {
+  color: #333;
+  margin-bottom: 1rem;
+}
+p {
+  margin-bottom: 1rem;
+}
+
+/* Main Header Styling */
+.main-header {
+  background: #ffffff;
+  padding: 0 30px;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+}
+
+.logo-img {
+  height: 45px;
+  margin-right: 15px;
+}
+
+.logo-container h1 {
+  margin: 0;
+  font-size: 24px;
+}
+
+/* Updated Navigation Bar Styling */
+.main-header nav a {
+  color: #333;
+  text-decoration: none;
+  padding: 8px 12px;
+  display: inline-block;
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+.main-header nav a:hover {
+  background-color: #f4f4f4;
+}
+
+/* Navigation Button Styling */
+.nav-button {
+  background-color: #b7bc1a;
+  color: rgb(14, 4, 46) !important;
+  border-radius: 5px;
+  margin-left: 8px;
+}
+.nav-button:hover {
+  background-color: #a9d748 !important;
+}
+
+.nav-button1 {
+  background-color: #007bff;
+  color: white !important;
+  border-radius: 5px;
+  margin-left: 8px;
+}
+.nav-button1:hover {
+  background-color: #0056b3 !important;
+}
+
+.nav-button2 {
+  background-color: #73317c;
+  color: white !important;
+  border-radius: 5px;
+  margin-left: 8px;
+}
+.nav-button2:hover {
+  background-color: #763064 !important;
+}
+
+/* Form Styling */
+form {
+  margin-top: 1.5rem;
+  background: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+form div {
+  margin-bottom: 1rem;
+}
+
+form label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+form input[type="text"],
+form input[type="email"],
+form input[type="file"],
+form input[type="password"] {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box; /* Fixes padding issue */
+}
+
+form button {
+  background-color: #28a745;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+form button:hover {
+  background-color: #218838;
+}
+
+
+/* Admin Dashboard Layout */
+.dashboard-layout {
+  display: flex;
+  padding: 20px;
+  gap: 20px; /* Adds space between the columns */
+}
+
+.dashboard-main {
+  flex: 1; /* Takes up the remaining space */
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.dashboard-sidebar {
+  width: 250px; /* Fixed width for the sidebar */
+  background: #333;
+  color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.dashboard-sidebar h3 {
+  margin-top: 0;
+  color: #fff;
+  border-bottom: 1px solid #555;
+  padding-bottom: 10px;
+}
+
+.dashboard-sidebar a {
+  display: block;
+  color: #fff;
+  text-decoration: none;
+  padding: 10px 0;
+  border-bottom: 1px solid #444;
+}
+
+.dashboard-sidebar a:hover {
+  background-color: #444;
+}
+
+.dashboard-sidebar .logout-link {
+    color: #ffadad;
+    margin-top: 20px;
+    border-top: 1px solid #555;
+}
+
+/* Star Rating Styling */
+.star-rating {
+  display: flex;
+  flex-direction: row-reverse; /* This is the key trick */
+  justify-content: flex-end;
+}
+
+.star-rating input[type="radio"] {
+  display: none; /* Hide the actual radio buttons */
+}
+
+.star-rating label {
+  font-size: 3rem; /* Make stars bigger */
+  color: #ccc;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.star-rating input[type="radio"]:checked ~ label,
+.star-rating label:hover,
+.star-rating label:hover ~ label {
+  color: #ffc700; /* Gold color for selected/hovered stars */
+}
+/* Print Button Styling */
+.print-button {
+  background-color: #5a6268;
+  color: white;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.print-button:hover {
+  background-color: #4a4f54;
+}
+
+/* Styles for when the page is printed */
+@media print {
+  /* Hide elements that shouldn't be printed */
+  .main-header, 
+  .dashboard-sidebar, 
+  .no-print,
+  form,
+  .dashboard-main > a { /* Hides buttons like '+ Create New Notice' */
+    display: none !important;
+  }
+
+  /* Reset the layout for printing */
+  body {
+    background-color: #fff;
+  }
+
+  .dashboard-layout {
+    display: block;
+    padding: 0;
+  }
+
+  .dashboard-main {
+    flex: none;
+    width: 100%;
+    box-shadow: none;
+    border-radius: 0;
+    padding: 0;
+  }
+  
+  /* Ensure table borders are visible */
+  table, th, td {
+    border: 1px solid #ddd !important;
+  }
+}

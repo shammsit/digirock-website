@@ -1,0 +1,46 @@
+<%- include('../partials/header') %>
+
+<div class="dashboard-layout">
+  <main class="dashboard-main">
+    <h1>All Notices</h1>
+    <a href="/admin/give-notice" style="display: inline-block; margin-bottom: 20px; padding: 10px; background: #007bff; color: white; text-decoration: none; border-radius: 5px;">+ Create New Notice</a>
+
+    <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+      <thead>
+        <tr style="background-color: #f2f2f2;">
+          <th style="padding: 10px; border: 1px solid #ddd;">Title</th>
+          <th style="padding: 10px; border: 1px solid #ddd;">Type</th>
+          <th style="padding: 10px; border: 1px solid #ddd;">Release Time</th>
+          <th style="padding: 10px; border: 1px solid #ddd;">Expiry Time</th>
+          <th style="padding: 10px; border: 1px solid #ddd;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if(typeof notices !== 'undefined' && notices.length > 0) { %>
+          <% notices.forEach(notice => { %>
+            <tr>
+              <td style="padding: 10px; border: 1px solid #ddd;"><%= notice.title %></td>
+              <td style="padding: 10px; border: 1px solid #ddd;"><%= notice.notice_type %></td>
+              <td style="padding: 10px; border: 1px solid #ddd;"><%= new Date(notice.release_time).toLocaleString() %></td>
+              <td style="padding: 10px; border: 1px solid #ddd;"><%= notice.expire_time ? new Date(notice.expire_time).toLocaleString() : 'Never' %></td>
+              <td style="padding: 10px; border: 1px solid #ddd; display: flex; gap: 5px; align-items: center;">
+                <a href="/admin/notices/edit/<%= notice.id %>" style="background-color: #ffc107; color: black; padding: 5px 10px; border-radius: 5px; text-decoration: none;">Edit</a>
+                <form action="/admin/notices/delete/<%= notice.id %>" method="POST" onsubmit="return confirm('Are you sure you want to delete this notice?');" style="margin: 0;">
+                  <button type="submit" style="background-color: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">Delete</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="5" style="padding: 10px; border: 1px solid #ddd; text-align: center;">No notices have been created yet.</td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </main>
+
+  <%- include('../partials/admin-sidebar') %>
+</div>
+
+<%- include('../partials/footer') %>

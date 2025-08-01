@@ -1,0 +1,53 @@
+<%- include('../partials/header') %>
+
+<div class="dashboard-layout">
+  <main class="dashboard-main">
+    <h1>Edit Notice</h1>
+
+    <form action="/admin/notices/update/<%= notice.id %>" method="POST" enctype="multipart/form-data">
+      <div>
+        <label for="notice_type">Notice Type</label>
+        <select name="notice_type" id="notice_type" required style="width: 100%; padding: 8px;">
+          <option <%= notice.notice_type === 'Announcement' ? 'selected' : '' %>>Announcement</option>
+          <option <%= notice.notice_type === 'Information' ? 'selected' : '' %>>Information</option>
+          <option <%= notice.notice_type === 'Rules Update' ? 'selected' : '' %>>Rules Update</option>
+          <option <%= notice.notice_type === 'Server Down' ? 'selected' : '' %>>Server Down</option>
+          <option <%= notice.notice_type === 'Others' ? 'selected' : '' %>>Others</option>
+        </select>
+      </div>
+      <br>
+      <div>
+        <label for="title">Title</label>
+        <input type="text" id="title" name="title" value="<%= notice.title %>" required>
+      </div>
+      <br>
+      <div>
+        <label for="body_text">Message Body (Optional)</label>
+        <textarea id="body_text" name="body_text" rows="8" style="width: 100%; padding: 8px;"><%= notice.body_text %></textarea>
+      </div>
+      <br>
+      <div>
+        <label for="attachment">Change File Attachment (Optional)</label>
+        <p>Current file: <%= notice.attachment_path ? notice.attachment_path.split('/').pop() : 'None' %></p>
+        <input type="hidden" name="current_attachment" value="<%= notice.attachment_path %>">
+        <input type="file" id="attachment" name="attachment">
+      </div>
+      <br>
+      <div>
+        <label for="release_time">Release Time</label>
+        <input type="datetime-local" id="release_time" name="release_time" value="<%= new Date(notice.release_time).toISOString().slice(0, 16) %>" required>
+      </div>
+      <br>
+      <div>
+        <label for="expire_time">Expiry Time (Optional)</label>
+        <input type="datetime-local" id="expire_time" name="expire_time" value="<%= notice.expire_time ? new Date(notice.expire_time).toISOString().slice(0, 16) : '' %>">
+      </div>
+      <br>
+      <button type="submit">Save Changes</button>
+    </form>
+  </main>
+
+  <%- include('../partials/admin-sidebar') %>
+</div>
+
+<%- include('../partials/footer') %>
