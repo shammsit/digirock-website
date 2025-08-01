@@ -9,11 +9,10 @@ require('dotenv').config();
 
 // --- DATABASE POOL ---
 const pool = new Pool({
-  user: 'postgres',
-  host: 'localhost',
-  database: 'my_website_db',
-  password: process.env.DB_PASSWORD,
-  port: 5432,
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
 
 // --- INITIALIZE RAZORPAY ---

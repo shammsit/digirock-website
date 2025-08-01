@@ -5,12 +5,12 @@ const multer = require('multer');
 const path = require('path');
 require('dotenv').config();
 
+// --- DATABASE POOL (FIXED FOR DEPLOYMENT) ---
 const pool = new Pool({
-  user: 'postgres',
-  host: 'localhost',
-  database: 'my_website_db',
-  password: process.env.DB_PASSWORD,
-  port: 5432,
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
 
 const noticeStorage = multer.diskStorage({
