@@ -7,16 +7,16 @@
     <!-- Form to Add a New Admin -->
     <h2>Add New Admin</h2>
     <form action="/admin/add-admin" method="POST" style="margin-bottom: 2rem;">
-      <div style="display: flex; gap: 1rem;">
-        <div style="flex: 1;">
+      <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
+        <div style="flex: 1; min-width: 200px;">
           <label for="name">Name</label>
           <input type="text" id="name" name="name" required>
         </div>
-        <div style="flex: 1;">
+        <div style="flex: 1; min-width: 200px;">
           <label for="email">Email</label>
           <input type="email" id="email" name="email" required>
         </div>
-        <div style="flex: 1;">
+        <div style="flex: 1; min-width: 200px;">
           <label for="password">Password</label>
           <input type="password" id="password" name="password" required>
         </div>
