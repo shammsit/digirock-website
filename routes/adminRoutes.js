@@ -4,8 +4,22 @@ const { Pool } = require('pg');
 const multer = require('multer');
 const path = require('path');
 const bcrypt = require('bcrypt');
-const crypto = require('crypto'); // Import crypto for token generation
+const crypto = require('crypto');
+const nodemailer = require('nodemailer'); // Import Nodemailer
 require('dotenv').config();
+
+// --- NODEMAILER TRANSPORTER SETUP ---
+// This uses your custom domain's email credentials
+const transporter = nodemailer.createTransport({
+    host: process.env.EMAIL_HOST,
+    port: process.env.EMAIL_PORT,
+    secure: process.env.EMAIL_PORT == 465, // true for 465, false for other ports
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+    },
+});
+
 
 // --- DATABASE POOL (FIXED FOR DEPLOYMENT) ---
 const pool = new Pool({
@@ -86,15 +100,11 @@ router.post('/forgot-password', async (req, res) => {
     try {
         const { rows } = await pool.query('SELECT * FROM admins WHERE email = $1', [email]);
         if (rows.length === 0) {
-            // Security: Show the same message whether the user exists or not
             return res.render('admin/forgot-password', { message: 'If an account with that email exists, a password reset link has been sent.' });
         }
 
-        // Generate a secure token
         const token = crypto.randomBytes(32).toString('hex');
         const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
-
-        // Set an expiry date (e.g., 1 hour from now)
         const expires = new Date(Date.now() + 3600000); // 1 hour
 
         await pool.query(
@@ -102,21 +112,29 @@ router.post('/forgot-password', async (req, res) => {
             [tokenHash, expires, email]
         );
 
-        // Construct the reset link
         const resetLink = `https://www.digirocksolution.co.in/reset-password/${token}`;
 
-        // **IMPORTANT**: In a real app, you would email this link.
-        // For now, we will log it to the console for you to test.
-        console.log("======================================================");
-        console.log("PASSWORD RESET LINK (COPY AND PASTE THIS INTO YOUR BROWSER):");
-        console.log(resetLink);
-        console.log("======================================================");
+        // **SEND THE EMAIL**
+        const mailOptions = {
+            from: `"digiROCK Admin" <${process.env.EMAIL_USER}>`,
+            to: email,
+            subject: 'Password Reset Request for digiROCK',
+            html: `
+                <p>You are receiving this because you (or someone else) have requested the reset of the password for your account.</p>
+                <p>Please click on the following link, or paste this into your browser to complete the process:</p>
+                <a href="${resetLink}">${resetLink}</a>
+                <p>This link will expire in one hour.</p>
+                <p>If you did not request this, please ignore this email and your password will remain unchanged.</p>
+            `
+        };
+
+        await transporter.sendMail(mailOptions);
 
         res.render('admin/forgot-password', { message: 'If an account with that email exists, a password reset link has been sent.' });
 
     } catch (err) {
-        console.error(err);
-        res.status(500).send('Server error.');
+        console.error("Forgot Password Error:", err);
+        res.status(500).send('Server error during password reset process.');
     }
 });
 
@@ -163,7 +181,6 @@ router.post('/reset-password/:token', async (req, res) => {
         const admin = rows[0];
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Update password and clear the reset token fields
         await pool.query(
             'UPDATE admins SET password = $1, password_reset_token = NULL, password_reset_expires = NULL WHERE id = $2',
             [hashedPassword, admin.id]
@@ -424,12 +441,13 @@ router.get('/admin/manage-admins', requireAdminLogin, requireOwner, async (req, 
 });
 
 router.post('/admin/add-admin', requireAdminLogin, requireOwner, async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, role } = req.body; // Add role to destructuring
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
+    // Add role to the INSERT query
     await pool.query(
-      'INSERT INTO admins (name, email, password) VALUES ($1, $2, $3)',
-      [name, email, hashedPassword]
+      'INSERT INTO admins (name, email, password, role) VALUES ($1, $2, $3, $4)',
+      [name, email, hashedPassword, role]
     );
     res.redirect('/admin/manage-admins');
   } catch (err) {
