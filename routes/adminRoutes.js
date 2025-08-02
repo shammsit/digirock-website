@@ -72,6 +72,7 @@ router.post('/admin-login', async (req, res) => {
       req.session.isAdmin = true;
       req.session.adminId = admin.id; // Store admin's ID in session
       req.session.adminName = admin.name;
+      req.session.adminEmail = admin.email; // Store admin's email for OTP
       req.session.adminRole = admin.role; // Store admin's role in session
       res.redirect('/dashboard');
     } else {
@@ -113,7 +114,6 @@ router.post('/forgot-password', async (req, res) => {
 
         const resetLink = `https://www.digirocksolution.co.in/reset-password/${token}`;
 
-        // **SEND THE EMAIL**
         const mailOptions = {
             from: `"digiROCK Admin" <${process.env.EMAIL_USER}>`,
             to: email,
@@ -190,6 +190,85 @@ router.post('/reset-password/:token', async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).send('Server error.');
+    }
+});
+
+// --- CHANGE PASSWORD ROUTES (FOR LOGGED-IN ADMINS) ---
+router.get('/admin/change-password', requireAdminLogin, (req, res) => {
+    res.render('admin/change-password', { error: null });
+});
+
+router.post('/admin/change-password', requireAdminLogin, async (req, res) => {
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+    const adminId = req.session.adminId;
+
+    if (newPassword !== confirmPassword) {
+        return res.render('admin/change-password', { error: 'New passwords do not match.' });
+    }
+
+    try {
+        const { rows } = await pool.query('SELECT * FROM admins WHERE id = $1', [adminId]);
+        const admin = rows[0];
+
+        const passwordMatch = await bcrypt.compare(currentPassword, admin.password);
+        if (!passwordMatch) {
+            return res.render('admin/change-password', { error: 'Incorrect current password.' });
+        }
+
+        // Generate OTP
+        const otp = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit OTP
+        const otpExpires = new Date(Date.now() + 600000); // 10 minutes
+
+        // Store new password and OTP temporarily in the session
+        req.session.tempNewPassword = newPassword;
+        req.session.otp = otp;
+        req.session.otpExpires = otpExpires;
+
+        // Send OTP email
+        const mailOptions = {
+            from: `"digiROCK Admin" <${process.env.EMAIL_USER}>`,
+            to: req.session.adminEmail,
+            subject: 'Your OTP for Password Change',
+            html: `<p>Your One-Time Password (OTP) to change your password is: <strong>${otp}</strong></p><p>This OTP will expire in 10 minutes.</p>`
+        };
+        await transporter.sendMail(mailOptions);
+
+        res.redirect('/admin/verify-otp');
+
+    } catch (err) {
+        console.error("Change Password Error:", err);
+        res.render('admin/change-password', { error: 'An error occurred. Please try again.' });
+    }
+});
+
+router.get('/admin/verify-otp', requireAdminLogin, (req, res) => {
+    res.render('admin/verify-otp', { error: null });
+});
+
+router.post('/admin/verify-otp-and-change', requireAdminLogin, async (req, res) => {
+    const { otp } = req.body;
+    const adminId = req.session.adminId;
+
+    if (otp !== req.session.otp || new Date() > new Date(req.session.otpExpires)) {
+        return res.render('admin/verify-otp', { error: 'Invalid or expired OTP. Please try again.' });
+    }
+
+    try {
+        const newPassword = req.session.tempNewPassword;
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        await pool.query('UPDATE admins SET password = $1 WHERE id = $2', [hashedPassword, adminId]);
+
+        // Clear temporary session data
+        delete req.session.tempNewPassword;
+        delete req.session.otp;
+        delete req.session.otpExpires;
+
+        res.redirect('/dashboard');
+
+    } catch (err) {
+        console.error("OTP Verification Error:", err);
+        res.render('admin/verify-otp', { error: 'An error occurred while updating your password.' });
     }
 });
 
