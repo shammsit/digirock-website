@@ -1,0 +1,27 @@
+<%- include('../partials/header') %>
+
+<div class="dashboard-layout">
+  <main class="dashboard-main">
+    <h1>Verify Your Identity</h1>
+    <p>An OTP has been sent to your registered email address. Please enter it below to confirm your password change.</p>
+
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div style="padding: 1rem; margin-bottom: 1rem; border-radius: 5px; background-color: #f8d7da; color: #721c24;">
+        <%= error %>
+      </div>
+    <% } %>
+
+    <form action="/admin/verify-otp-and-change" method="POST">
+      <div>
+        <label for="otp">Enter OTP</label>
+        <input type="text" id="otp" name="otp" required>
+      </div>
+      <br>
+      <button type="submit">Change Password</button>
+    </form>
+  </main>
+
+  <%- include('../partials/admin-sidebar') %>
+</div>
+
+<%- include('../partials/footer') %>

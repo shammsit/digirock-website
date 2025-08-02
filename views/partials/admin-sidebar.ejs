@@ -8,17 +8,12 @@
   <a href="/admin/give-notice">Give Notice</a>
   <a href="/admin/notices">Manage Notices</a>
 
-  <!-- This link will only be shown to the owner -->
   <% if (typeof adminRole !== 'undefined' && adminRole === 'owner') { %>
     <a href="/admin/manage-admins">Manage Admins</a>
   <% } %>
 
   <hr>
   
-  <!-- Centered Print Button -->
-  <div style="text-align: center; margin-bottom: 15px;">
-    <button onclick="window.print()" class="print-button no-print">🖨️ Print Page</button>
-  </div>
-  
+  <a href="/admin/change-password">Change Password</a>
   <a href="/logout" class="logout-link">Logout</a>
 </aside>
