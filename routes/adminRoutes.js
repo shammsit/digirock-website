@@ -56,6 +56,7 @@ router.post('/admin-login', async (req, res) => {
     const passwordMatch = await bcrypt.compare(password, admin.password);
     if (passwordMatch) {
       req.session.isAdmin = true;
+      req.session.adminId = admin.id; // Store admin's ID in session
       req.session.adminName = admin.name;
       req.session.adminRole = admin.role; // Store admin's role in session
       res.redirect('/dashboard');
@@ -309,7 +310,10 @@ router.post('/admin/donations/delete/:id', requireAdminLogin, async (req, res) =
 router.get('/admin/manage-admins', requireAdminLogin, requireOwner, async (req, res) => {
   try {
     const { rows } = await pool.query('SELECT id, name, email, role FROM admins ORDER BY name');
-    res.render('admin/manage-admins', { admins: rows });
+    res.render('admin/manage-admins', { 
+      admins: rows,
+      currentAdminId: req.session.adminId // Pass current admin's ID to the template
+    });
   } catch (err) {
     console.error(err);
     res.status(500).send('Server error');
@@ -337,6 +341,11 @@ router.post('/admin/add-admin', requireAdminLogin, requireOwner, async (req, res
 router.post('/admin/delete-admin/:id', requireAdminLogin, requireOwner, async (req, res) => {
   const { id } = req.params;
   try {
+    // Prevent the logged-in user from deleting themselves
+    if (id == req.session.adminId) {
+        return res.status(400).send("You cannot delete your own account.");
+    }
+    
     const countResult = await pool.query('SELECT COUNT(*) FROM admins');
     if (parseInt(countResult.rows[0].count, 10) > 1) {
       await pool.query('DELETE FROM admins WHERE id = $1', [id]);
