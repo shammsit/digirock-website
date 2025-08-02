@@ -33,24 +33,43 @@ const requireAdminLogin = (req, res, next) => {
 // --- ADMIN LOGIN/LOGOUT & DASHBOARD ---
 router.get('/monitor_admin', (req, res) => { res.render('admin/monitor_admin'); });
 
+// **MODIFIED ADMIN LOGIN ROUTE WITH DEBUGGING**
 router.post('/admin-login', async (req, res) => {
+  console.log("--- Admin login attempt started ---");
   const { email, password } = req.body;
+  
+  console.log("Attempting login for email:", email);
+  if (!password) {
+    console.log("ERROR: No password was submitted.");
+    return res.redirect('/monitor_admin');
+  }
+
   try {
     const result = await pool.query('SELECT * FROM admins WHERE email = $1', [email]);
+    
     if (result.rows.length === 0) {
+      console.log("DEBUG: No admin found with that email.");
       return res.redirect('/monitor_admin');
     }
+
     const admin = result.rows[0];
+    console.log("DEBUG: Found admin:", admin.name);
+    console.log("DEBUG: Hashed password from DB:", admin.password);
+
     const passwordMatch = await bcrypt.compare(password, admin.password);
+    console.log("DEBUG: Password comparison result:", passwordMatch);
+
     if (passwordMatch) {
+      console.log("SUCCESS: Passwords match. Creating session.");
       req.session.isAdmin = true;
       req.session.adminName = admin.name;
       res.redirect('/dashboard');
     } else {
+      console.log("FAILURE: Passwords do not match.");
       res.redirect('/monitor_admin');
     }
   } catch (err) {
-    console.error(err);
+    console.error("CRITICAL ERROR in /admin-login route:", err);
     res.status(500).send('Server error during login.');
   }
 });
