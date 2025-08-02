@@ -4,6 +4,7 @@ const { Pool } = require('pg');
 const multer = require('multer');
 const path = require('path');
 const bcrypt = require('bcrypt');
+const crypto = require('crypto'); // Import crypto for token generation
 require('dotenv').config();
 
 // --- DATABASE POOL (FIXED FOR DEPLOYMENT) ---
@@ -74,6 +75,108 @@ router.get('/logout', (req, res) => {
     res.redirect('/');
   });
 });
+
+// --- PASSWORD RESET ROUTES ---
+router.get('/forgot-password', (req, res) => {
+    res.render('admin/forgot-password', { message: null });
+});
+
+router.post('/forgot-password', async (req, res) => {
+    const { email } = req.body;
+    try {
+        const { rows } = await pool.query('SELECT * FROM admins WHERE email = $1', [email]);
+        if (rows.length === 0) {
+            // Security: Show the same message whether the user exists or not
+            return res.render('admin/forgot-password', { message: 'If an account with that email exists, a password reset link has been sent.' });
+        }
+
+        // Generate a secure token
+        const token = crypto.randomBytes(32).toString('hex');
+        const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+
+        // Set an expiry date (e.g., 1 hour from now)
+        const expires = new Date(Date.now() + 3600000); // 1 hour
+
+        await pool.query(
+            'UPDATE admins SET password_reset_token = $1, password_reset_expires = $2 WHERE email = $3',
+            [tokenHash, expires, email]
+        );
+
+        // Construct the reset link
+        const resetLink = `https://www.digirocksolution.co.in/reset-password/${token}`;
+
+        // **IMPORTANT**: In a real app, you would email this link.
+        // For now, we will log it to the console for you to test.
+        console.log("======================================================");
+        console.log("PASSWORD RESET LINK (COPY AND PASTE THIS INTO YOUR BROWSER):");
+        console.log(resetLink);
+        console.log("======================================================");
+
+        res.render('admin/forgot-password', { message: 'If an account with that email exists, a password reset link has been sent.' });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server error.');
+    }
+});
+
+router.get('/reset-password/:token', async (req, res) => {
+    const { token } = req.params;
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+
+    try {
+        const { rows } = await pool.query(
+            'SELECT * FROM admins WHERE password_reset_token = $1 AND password_reset_expires > NOW()',
+            [tokenHash]
+        );
+
+        if (rows.length === 0) {
+            return res.status(400).send('Password reset token is invalid or has expired.');
+        }
+
+        res.render('admin/reset-password');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server error.');
+    }
+});
+
+router.post('/reset-password/:token', async (req, res) => {
+    const { token } = req.params;
+    const { password, passwordConfirm } = req.body;
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+
+    if (password !== passwordConfirm) {
+        return res.status(400).send('Passwords do not match.');
+    }
+
+    try {
+        const { rows } = await pool.query(
+            'SELECT * FROM admins WHERE password_reset_token = $1 AND password_reset_expires > NOW()',
+            [tokenHash]
+        );
+
+        if (rows.length === 0) {
+            return res.status(400).send('Password reset token is invalid or has expired.');
+        }
+
+        const admin = rows[0];
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Update password and clear the reset token fields
+        await pool.query(
+            'UPDATE admins SET password = $1, password_reset_token = NULL, password_reset_expires = NULL WHERE id = $2',
+            [hashedPassword, admin.id]
+        );
+
+        res.redirect('/monitor_admin');
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server error.');
+    }
+});
+
 
 router.get('/dashboard', requireAdminLogin, async (req, res) => { 
   try {
