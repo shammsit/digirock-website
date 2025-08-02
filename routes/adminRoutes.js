@@ -22,50 +22,44 @@ const noticeStorage = multer.diskStorage({
 });
 const uploadNotice = multer({ storage: noticeStorage }).single('attachment');
 
+// --- MIDDLEWARE FOR AUTHENTICATION & AUTHORIZATION ---
 const requireAdminLogin = (req, res, next) => {
     if (!req.session.isAdmin) { return res.redirect('/monitor_admin'); }
+    // Make role available to all templates rendered after this middleware
+    res.locals.adminRole = req.session.adminRole; 
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
     next();
 };
 
+// Middleware to check for owner role
+const requireOwner = (req, res, next) => {
+    if (req.session.adminRole !== 'owner') {
+        return res.status(403).send('Forbidden: You do not have permission to access this page.');
+    }
+    next();
+};
+
+
 // --- ADMIN LOGIN/LOGOUT & DASHBOARD ---
 router.get('/monitor_admin', (req, res) => { res.render('admin/monitor_admin'); });
 
-// **MODIFIED ADMIN LOGIN ROUTE WITH DEBUGGING**
 router.post('/admin-login', async (req, res) => {
-  console.log("--- Admin login attempt started ---");
   const { email, password } = req.body;
-  
-  console.log("Attempting login for email:", email);
-  if (!password) {
-    console.log("ERROR: No password was submitted.");
-    return res.redirect('/monitor_admin');
-  }
-
   try {
     const result = await pool.query('SELECT * FROM admins WHERE email = $1', [email]);
-    
     if (result.rows.length === 0) {
-      console.log("DEBUG: No admin found with that email.");
       return res.redirect('/monitor_admin');
     }
-
     const admin = result.rows[0];
-    console.log("DEBUG: Found admin:", admin.name);
-    console.log("DEBUG: Hashed password from DB:", admin.password);
-
     const passwordMatch = await bcrypt.compare(password, admin.password);
-    console.log("DEBUG: Password comparison result:", passwordMatch);
-
     if (passwordMatch) {
-      console.log("SUCCESS: Passwords match. Creating session.");
       req.session.isAdmin = true;
       req.session.adminName = admin.name;
+      req.session.adminRole = admin.role; // Store admin's role in session
       res.redirect('/dashboard');
     } else {
-      console.log("FAILURE: Passwords do not match.");
       res.redirect('/monitor_admin');
     }
   } catch (err) {
@@ -311,8 +305,8 @@ router.post('/admin/donations/delete/:id', requireAdminLogin, async (req, res) =
   }
 });
 
-// --- ADMIN MANAGEMENT ROUTES ---
-router.get('/admin/manage-admins', requireAdminLogin, async (req, res) => {
+// --- ADMIN MANAGEMENT ROUTES (PROTECTED) ---
+router.get('/admin/manage-admins', requireAdminLogin, requireOwner, async (req, res) => {
   try {
     const { rows } = await pool.query('SELECT id, name, email, role FROM admins ORDER BY name');
     res.render('admin/manage-admins', { admins: rows });
@@ -322,7 +316,7 @@ router.get('/admin/manage-admins', requireAdminLogin, async (req, res) => {
   }
 });
 
-router.post('/admin/add-admin', requireAdminLogin, async (req, res) => {
+router.post('/admin/add-admin', requireAdminLogin, requireOwner, async (req, res) => {
   const { name, email, password } = req.body;
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -340,7 +334,7 @@ router.post('/admin/add-admin', requireAdminLogin, async (req, res) => {
   }
 });
 
-router.post('/admin/delete-admin/:id', requireAdminLogin, async (req, res) => {
+router.post('/admin/delete-admin/:id', requireAdminLogin, requireOwner, async (req, res) => {
   const { id } = req.params;
   try {
     const countResult = await pool.query('SELECT COUNT(*) FROM admins');

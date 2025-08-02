@@ -1,21 +1,108 @@
 <%- include('../partials/header') %>
 
+<style>
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    margin-top: 2rem;
+  }
+  .stat-card {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    border-left: 5px solid #007bff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  .stat-card h4 {
+    margin-top: 0;
+    color: #5a5a5a;
+    font-size: 1rem;
+    font-weight: 500;
+  }
+  .stat-card p {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 0;
+    color: #333;
+  }
+  .recent-donations-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+  }
+  .recent-donations-table th, .recent-donations-table td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: left;
+  }
+  .recent-donations-table th {
+    background-color: #f2f2f2;
+  }
+</style>
+
 <div class="dashboard-layout">
-  <!-- Main Content Area -->
   <main class="dashboard-main">
     <h1>Admin Dashboard</h1>
     
     <% if (typeof adminName !== 'undefined' && adminName) { %>
-      <p>Welcome, <strong><%= adminName %></strong>! You are successfully logged in.</p>
+      <p>Welcome, <strong><%= adminName %></strong>! Here is an overview of your website's activity.</p>
     <% } else { %>
-      <p>Welcome, Admin! You are successfully logged in.</p>
+      <p>Welcome, Admin! Here is an overview of your website's activity.</p>
     <% } %>
     
-    <p>Select an option from the sidebar on the right to view submissions.</p>
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+      <div class="stat-card" style="border-color: #28a745;">
+        <h4>Total Donations</h4>
+        <p>₹<%= stats.totalDonations %></p>
+      </div>
+      <div class="stat-card" style="border-color: #ffc107;">
+        <h4>Average Rating</h4>
+        <p><%= stats.averageRating %> ★</p>
+      </div>
+      <div class="stat-card" style="border-color: #17a2b8;">
+        <h4>Feedback Received</h4>
+        <p><%= stats.feedbackCount %></p>
+      </div>
+      <div class="stat-card" style="border-color: #dc3545;">
+        <h4>Contact Mails</h4>
+        <p><%= stats.mailCount %></p>
+      </div>
+    </div>
+
+    <!-- Recent Donations -->
+    <div style="margin-top: 2.5rem;">
+      <h2>Recent Donations</h2>
+      <% if (recentDonations.length > 0) { %>
+        <table class="recent-donations-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Name</th>
+              <th>Amount</th>
+              <th>Payment ID</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% recentDonations.forEach(donation => { %>
+              <tr>
+                <td><%= new Date(donation.created_at).toLocaleDateString() %></td>
+                <td><%= donation.name %></td>
+                <td>₹<%= donation.amount %></td>
+                <td><%= donation.payment_id %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      <% } else { %>
+        <p>No donations have been made yet.</p>
+      <% } %>
+    </div>
+
   </main>
 
-  <!-- Right Sidebar -->
-<%- include('../partials/admin-sidebar') %>
+  <%- include('../partials/admin-sidebar') %>
 </div>
 
 <%- include('../partials/footer') %>

@@ -7,7 +7,12 @@
   <a href="/admin/mails">Show Mails</a>
   <a href="/admin/give-notice">Give Notice</a>
   <a href="/admin/notices">Manage Notices</a>
-  <a href="/admin/manage-admins">Manage Admins</a>
+
+  <!-- This link will only be shown to the owner -->
+  <% if (typeof adminRole !== 'undefined' && adminRole === 'owner') { %>
+    <a href="/admin/manage-admins">Manage Admins</a>
+  <% } %>
+
   <hr>
   
   <!-- Centered Print Button -->
