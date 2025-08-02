@@ -61,10 +61,8 @@ router.get('/logout', (req, res) => {
   });
 });
 
-// **MODIFIED DASHBOARD ROUTE TO FETCH DATA**
 router.get('/dashboard', requireAdminLogin, async (req, res) => { 
   try {
-    // Run all database queries concurrently for speed
     const [
       donationData,
       ratingData,
@@ -288,6 +286,49 @@ router.post('/admin/donations/delete/:id', requireAdminLogin, async (req, res) =
   try {
     await pool.query('DELETE FROM donations WHERE id = $1', [id]);
     res.redirect('/admin/donations');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server error');
+  }
+});
+
+// --- ADMIN MANAGEMENT ROUTES ---
+router.get('/admin/manage-admins', requireAdminLogin, async (req, res) => {
+  try {
+    const { rows } = await pool.query('SELECT id, name, email, role FROM admins ORDER BY name');
+    res.render('admin/manage-admins', { admins: rows });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server error');
+  }
+});
+
+router.post('/admin/add-admin', requireAdminLogin, async (req, res) => {
+  const { name, email, password } = req.body;
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await pool.query(
+      'INSERT INTO admins (name, email, password) VALUES ($1, $2, $3)',
+      [name, email, hashedPassword]
+    );
+    res.redirect('/admin/manage-admins');
+  } catch (err) {
+    console.error(err);
+    if (err.code === '23505') { 
+      return res.status(400).send('An admin with this email already exists.');
+    }
+    res.status(500).send('Server error');
+  }
+});
+
+router.post('/admin/delete-admin/:id', requireAdminLogin, async (req, res) => {
+  const { id } = req.params;
+  try {
+    const countResult = await pool.query('SELECT COUNT(*) FROM admins');
+    if (parseInt(countResult.rows[0].count, 10) > 1) {
+      await pool.query('DELETE FROM admins WHERE id = $1', [id]);
+    }
+    res.redirect('/admin/manage-admins');
   } catch (err) {
     console.error(err);
     res.status(500).send('Server error');
