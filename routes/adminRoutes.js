@@ -5,11 +5,10 @@ const multer = require('multer');
 const path = require('path');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
-const nodemailer = require('nodemailer'); // Import Nodemailer
+const nodemailer = require('nodemailer');
 require('dotenv').config();
 
 // --- NODEMAILER TRANSPORTER SETUP ---
-// This uses your custom domain's email credentials
 const transporter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
     port: process.env.EMAIL_PORT,
@@ -441,10 +440,9 @@ router.get('/admin/manage-admins', requireAdminLogin, requireOwner, async (req, 
 });
 
 router.post('/admin/add-admin', requireAdminLogin, requireOwner, async (req, res) => {
-  const { name, email, password, role } = req.body; // Add role to destructuring
+  const { name, email, password, role } = req.body;
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
-    // Add role to the INSERT query
     await pool.query(
       'INSERT INTO admins (name, email, password, role) VALUES ($1, $2, $3, $4)',
       [name, email, hashedPassword, role]
