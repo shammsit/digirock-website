@@ -108,19 +108,19 @@ router.post('/submit-feedback', async (req, res) => {
 // **CORRECTED** Public Noticeboard Page with Timezone Fix
 router.get('/noticeboard', async (req, res) => {
   try {
-    // The NOW() function will now correctly use the Asia/Kolkata timezone
     const { rows } = await pool.query(
-      `SELECT * FROM notices 
+      `SELECT * FROM notices
        WHERE release_time <= NOW()
-       AND (expire_time IS NULL OR expire_time > NOW()) 
+         AND (expire_time IS NULL OR expire_time > NOW())
        ORDER BY release_time DESC`
     );
     res.render('home/noticeboard', { notices: rows });
   } catch (err) {
-    console.error(err);
+    console.error('Error loading notices:', err);
     res.status(500).send('Server error');
   }
 });
+
 
 router.post('/submit-contact', (req, res) => {
   uploadContact(req, res, async (err) => {
