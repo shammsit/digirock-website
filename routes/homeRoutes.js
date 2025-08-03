@@ -104,6 +104,8 @@ router.post('/submit-feedback', async (req, res) => {
 // **CORRECTED** Public Noticeboard Page with Timezone Fix
 router.get('/noticeboard', async (req, res) => {
   try {
+    // The NOW() function returns the current time in the server's timezone (UTC).
+    // This query correctly compares the stored release_time with the current time.
     const { rows } = await pool.query(
       `SELECT * FROM notices 
        WHERE release_time <= NOW()
@@ -112,7 +114,7 @@ router.get('/noticeboard', async (req, res) => {
     );
     res.render('home/noticeboard', { notices: rows });
   } catch (err) {
-    console.error(err);
+    console.error("Error fetching notices for noticeboard:", err);
     res.status(500).send('Server error');
   }
 });
