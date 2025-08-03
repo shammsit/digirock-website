@@ -117,7 +117,7 @@ router.get('/noticeboard', async (req, res) => {
     );
     res.render('home/noticeboard', { notices: rows });
   } catch (err) {
-    console.error("Error fetching notices for noticeboard:", err);
+    console.error(err);
     res.status(500).send('Server error');
   }
 });

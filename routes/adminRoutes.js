@@ -8,6 +8,8 @@ const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
+
+// --- NODEMAILER TRANSPORTER SETUP ---
 const transporter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
     port: process.env.EMAIL_PORT,
@@ -18,12 +20,20 @@ const transporter = nodemailer.createTransport({
     },
 });
 
+
+
+// --- DATABASE POOL WITH TIMEZONE FIX ---
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
     rejectUnauthorized: false
   }
 });
+pool.on('connect', (client) => {
+  client.query("SET TIME ZONE 'Asia/Kolkata'");
+});
+
+
 
 const noticeStorage = multer.diskStorage({
   destination: './public/notices/',
@@ -33,14 +43,25 @@ const noticeStorage = multer.diskStorage({
 });
 const uploadNotice = multer({ storage: noticeStorage }).single('attachment');
 
+
+// --- Helper: Convert datetime-local input to UTC string for DB ---
+function toUTC(dateStr) {
+  if (!dateStr) return null;
+  const dt = new Date(dateStr);
+  return new Date(dt.getTime() - dt.getTimezoneOffset() * 60000).toISOString().slice(0,19).replace('T', ' ');
+}
+
+
+// --- MIDDLEWARE ---
 const requireAdminLogin = (req, res, next) => {
     if (!req.session.isAdmin) { return res.redirect('/monitor_admin'); }
-    res.locals.adminRole = req.session.adminRole;
+    res.locals.adminRole = req.session.adminRole; 
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
     next();
 };
+
 
 const requireOwner = (req, res, next) => {
     if (req.session.adminRole !== 'owner') {
@@ -49,29 +70,46 @@ const requireOwner = (req, res, next) => {
     next();
 };
 
+
+// **UPDATED** Permission Checking Middleware for Manual Requests
 const checkPermission = (section) => {
     return async (req, res, next) => {
         const adminId = req.session.adminId;
         const adminRole = req.session.adminRole;
+
+
+        // Owner has access to everything
         if (adminRole === 'owner') {
             return next();
         }
+
+
         try {
+            // Check if permission already exists in the permissions table
             const permResult = await pool.query(
                 'SELECT * FROM admin_permissions WHERE admin_id = $1 AND allowed_section = $2',
                 [adminId, section]
             );
+
+
             if (permResult.rows.length > 0) {
-                return next();
+                return next(); // Permission granted, continue to the actual page
             }
+            
+            // If no permission, check if a request is already pending
             const requestResult = await pool.query(
                 'SELECT * FROM access_requests WHERE admin_id = $1 AND requested_section = $2 AND status = $3',
                 [adminId, section, 'pending']
             );
-            res.render('admin/access-denied', {
+
+
+            // Render the access denied page, and tell the page whether a request has already been sent
+            res.render('admin/access-denied', { 
                 section,
-                requestSent: requestResult.rows.length > 0
+                requestSent: requestResult.rows.length > 0 
             });
+
+
         } catch (err) {
             console.error("Permission check error:", err);
             res.status(500).send("Server error during permission check.");
@@ -79,17 +117,11 @@ const checkPermission = (section) => {
     };
 };
 
-// UTILITY: Convert form datetime-local (local browser time) string to UTC string
-function toUTC(dateStr) {
-  if(!dateStr) return null;
-  const dt = new Date(dateStr); // Browser "datetime-local" string: local time
-  return new Date(dt.getTime() - dt.getTimezoneOffset() * 60000).toISOString().slice(0,19).replace('T',' ');
-}
 
 
 // --- ADMIN LOGIN/LOGOUT & DASHBOARD ---
-
 router.get('/monitor_admin', (req, res) => { res.render('admin/monitor_admin'); });
+
 
 router.post('/admin-login', async (req, res) => {
   const { email, password } = req.body;
@@ -116,17 +148,19 @@ router.post('/admin-login', async (req, res) => {
   }
 });
 
+
 router.get('/logout', (req, res) => {
   req.session.destroy(() => {
     res.redirect('/');
   });
 });
 
-// --- PASSWORD RESET ROUTES (SKIPPED/UNCHANGED) ---
 
+// --- PASSWORD RESET ROUTES ---
 router.get('/forgot-password', (req, res) => {
     res.render('admin/forgot-password', { message: null });
 });
+
 
 router.post('/forgot-password', async (req, res) => {
     const { email } = req.body;
@@ -157,6 +191,7 @@ router.post('/forgot-password', async (req, res) => {
     }
 });
 
+
 router.get('/reset-password/:token', async (req, res) => {
     const { token } = req.params;
     const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
@@ -174,6 +209,7 @@ router.get('/reset-password/:token', async (req, res) => {
         res.status(500).send('Server error.');
     }
 });
+
 
 router.post('/reset-password/:token', async (req, res) => {
     const { token } = req.params;
@@ -203,11 +239,12 @@ router.post('/reset-password/:token', async (req, res) => {
     }
 });
 
-// --- CHANGE PASSWORD ROUTES (UNTOUCHED) ---
 
+// --- CHANGE PASSWORD ROUTES (FOR LOGGED-IN ADMINS) ---
 router.get('/admin/change-password', requireAdminLogin, (req, res) => {
     res.render('admin/change-password', { error: null });
 });
+
 
 router.post('/admin/change-password', requireAdminLogin, async (req, res) => {
     const { currentPassword, newPassword, confirmPassword } = req.body;
@@ -241,9 +278,11 @@ router.post('/admin/change-password', requireAdminLogin, async (req, res) => {
     }
 });
 
+
 router.get('/admin/verify-otp', requireAdminLogin, (req, res) => {
     res.render('admin/verify-otp', { error: null });
 });
+
 
 router.post('/admin/verify-otp-and-change', requireAdminLogin, async (req, res) => {
     const { otp } = req.body;
@@ -265,7 +304,8 @@ router.post('/admin/verify-otp-and-change', requireAdminLogin, async (req, res) 
     }
 });
 
-router.get('/dashboard', requireAdminLogin, async (req, res) => {
+
+router.get('/dashboard', requireAdminLogin, async (req, res) => { 
   try {
     const [ donationData, ratingData, feedbackData, mailData, noticeData, recentDonationsData ] = await Promise.all([
       pool.query('SELECT COUNT(*) as count, SUM(amount) as total FROM donations'),
@@ -284,7 +324,7 @@ router.get('/dashboard', requireAdminLogin, async (req, res) => {
       mailCount: mailData.rows[0].count,
       activeNotices: noticeData.rows[0].count,
     };
-    res.render('admin/dashboard', {
+    res.render('admin/dashboard', { 
       adminName: req.session.adminName,
       stats: stats,
       recentDonations: recentDonationsData.rows
@@ -295,19 +335,19 @@ router.get('/dashboard', requireAdminLogin, async (req, res) => {
   }
 });
 
-// --- NOTICE MANAGEMENT ROUTES (----------- CHANGES BELOW ----------) ---
 
+
+// --- NOTICE MANAGEMENT ROUTES (UPDATED WITH UTC CONVERSION) ---
 router.get('/admin/give-notice', requireAdminLogin, checkPermission('Notices'), (req, res) => {
   res.render('admin/give-notice');
 });
 
-// ***** FIXED: POST, proper UTC handling *****
+
 router.post('/admin/give-notice', requireAdminLogin, checkPermission('Notices'), (req, res) => {
   uploadNotice(req, res, async (err) => {
     if (err) { return res.status(500).send('File upload error'); }
     const { notice_type, title, body_text, release_time, expire_time } = req.body;
     const attachmentPath = req.file ? req.file.path.replace('public', '') : null;
-    // Use UTC conversion helper
     const releaseTimeUTC = toUTC(release_time);
     const expireTimeUTC = toUTC(expire_time);
     try {
@@ -323,6 +363,7 @@ router.post('/admin/give-notice', requireAdminLogin, checkPermission('Notices'),
   });
 });
 
+
 router.get('/admin/notices', requireAdminLogin, checkPermission('Notices'), async (req, res) => {
   try {
     const { rows } = await pool.query('SELECT * FROM notices ORDER BY release_time DESC');
@@ -332,6 +373,7 @@ router.get('/admin/notices', requireAdminLogin, checkPermission('Notices'), asyn
     res.status(500).send('Server Error');
   }
 });
+
 
 router.get('/admin/notices/edit/:id', requireAdminLogin, checkPermission('Notices'), async (req, res) => {
   const { id } = req.params;
@@ -348,7 +390,7 @@ router.get('/admin/notices/edit/:id', requireAdminLogin, checkPermission('Notice
   }
 });
 
-// ***** FIXED: POST, proper UTC handling *****
+
 router.post('/admin/notices/update/:id', requireAdminLogin, checkPermission('Notices'), (req, res) => {
   uploadNotice(req, res, async (err) => {
     const { id } = req.params;
@@ -358,7 +400,6 @@ router.post('/admin/notices/update/:id', requireAdminLogin, checkPermission('Not
     if (req.file) {
       attachmentPath = req.file.path.replace('public', '');
     }
-    // Use UTC conversion helper
     const releaseTimeUTC = toUTC(release_time);
     const expireTimeUTC = toUTC(expire_time);
     try {
@@ -374,6 +415,7 @@ router.post('/admin/notices/update/:id', requireAdminLogin, checkPermission('Not
   });
 });
 
+
 router.post('/admin/notices/delete/:id', requireAdminLogin, checkPermission('Notices'), async (req, res) => {
     const { id } = req.params;
     try {
@@ -385,6 +427,186 @@ router.post('/admin/notices/delete/:id', requireAdminLogin, checkPermission('Not
     }
 });
 
-// (other admin routes unchanged...)
+
+
+// --- OTHER PROTECTED ROUTES WITH PERMISSION CHECKS ---
+router.get('/admin/donations', requireAdminLogin, checkPermission('Donations'), async (req, res) => {
+  try {
+    const { rows } = await pool.query('SELECT * FROM donations ORDER BY created_at DESC');
+    res.render('admin/admin-donations', { donations: rows });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server Error');
+  }
+});
+
+
+router.get('/admin/feedbacks', requireAdminLogin, checkPermission('Feedbacks'), async (req, res) => {
+  try {
+    const { rows } = await pool.query('SELECT * FROM feedbacks ORDER BY created_at DESC');
+    res.render('admin/admin-feedbacks', { feedbacks: rows });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server error');
+  }
+});
+
+
+router.get('/admin/ratings', requireAdminLogin, checkPermission('Ratings'), async (req, res) => {
+    const timeFilter = req.query.time_filter || 'all';
+    let whereClause = '';
+    switch (timeFilter) {
+        case 'this_year': whereClause = `WHERE date_trunc('year', created_at) = date_trunc('year', CURRENT_TIMESTAMP)`; break;
+        case 'this_month': whereClause = `WHERE date_trunc('month', created_at) = date_trunc('month', CURRENT_TIMESTAMP)`; break;
+        case 'this_week': whereClause = `WHERE date_trunc('week', created_at) = date_trunc('week', CURRENT_TIMESTAMP)`; break;
+    }
+    try {
+        const ratingsResult = await pool.query(`SELECT * FROM ratings ${whereClause} ORDER BY created_at DESC`);
+        const summaryResult = await pool.query(`SELECT rating, COUNT(*) as count FROM ratings ${whereClause} GROUP BY rating ORDER BY rating DESC`);
+        const chartData = {
+            labels: summaryResult.rows.map(row => `${row.rating} Star`),
+            data: summaryResult.rows.map(row => row.count)
+        };
+        res.render('admin/admin-ratings', {
+            ratings: ratingsResult.rows,
+            chartData: JSON.stringify(chartData),
+            currentTimeFilter: timeFilter
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server error');
+    }
+});
+
+
+router.get('/admin/mails', requireAdminLogin, checkPermission('Mails'), async (req, res) => {
+  try {
+    const { rows } = await pool.query('SELECT * FROM contact_messages ORDER BY created_at DESC');
+    res.render('admin/admin-mails', { messages: rows });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server Error');
+  }
+});
+
+
+// --- ACCESS REQUEST ROUTES ---
+router.post('/admin/request-access', requireAdminLogin, async (req, res) => {
+    const { section } = req.body;
+    const adminId = req.session.adminId;
+    const adminName = req.session.adminName;
+    const adminRole = req.session.adminRole;
+
+
+    try {
+        const existingRequest = await pool.query(
+            'SELECT * FROM access_requests WHERE admin_id = $1 AND requested_section = $2 AND status = $3',
+            [adminId, section, 'pending']
+        );
+
+
+        if (existingRequest.rows.length === 0) {
+            await pool.query(
+                'INSERT INTO access_requests (admin_id, admin_name, admin_role, requested_section) VALUES ($1, $2, $3, $4)',
+                [adminId, adminName, adminRole, section]
+            );
+        }
+        res.render('admin/access-denied', { section, requestSent: true });
+    } catch (err) {
+        console.error("Error creating access request:", err);
+        res.status(500).send("Server error.");
+    }
+});
+
+
+router.get('/admin/manage-requests', requireAdminLogin, requireOwner, async (req, res) => {
+    try {
+        const { rows } = await pool.query("SELECT * FROM access_requests WHERE status = 'pending' ORDER BY created_at DESC");
+        res.render('admin/manage-requests', { requests: rows });
+    } catch (err) {
+        console.error("Error fetching access requests:", err);
+        res.status(500).send("Server error.");
+    }
+});
+
+
+router.post('/admin/approve-request/:id', requireAdminLogin, requireOwner, async (req, res) => {
+    const { id } = req.params;
+    try {
+        const requestResult = await pool.query("SELECT * FROM access_requests WHERE id = $1", [id]);
+        if (requestResult.rows.length === 0) {
+            return res.status(404).send("Request not found.");
+        }
+        const request = requestResult.rows[0];
+        await pool.query( "INSERT INTO admin_permissions (admin_id, allowed_section) VALUES ($1, $2) ON CONFLICT DO NOTHING", [request.admin_id, request.requested_section] );
+        await pool.query("UPDATE access_requests SET status = 'approved' WHERE id = $1", [id]);
+        res.redirect('/admin/manage-requests');
+    } catch (err) {
+        console.error("Error approving request:", err);
+        res.status(500).send("Server error.");
+    }
+});
+
+
+router.post('/admin/deny-request/:id', requireAdminLogin, requireOwner, async (req, res) => {
+    const { id } = req.params;
+    try {
+        await pool.query("UPDATE access_requests SET status = 'denied' WHERE id = $1", [id]);
+        res.redirect('/admin/manage-requests');
+    } catch (err) {
+        console.error("Error denying request:", err);
+        res.status(500).send("Server error.");
+    }
+});
+
+
+// --- ADMIN MANAGEMENT ROUTES (PROTECTED) ---
+router.get('/admin/manage-admins', requireAdminLogin, requireOwner, async (req, res) => {
+  try {
+    const { rows } = await pool.query('SELECT id, name, email, role FROM admins ORDER BY name');
+    res.render('admin/manage-admins', { 
+      admins: rows,
+      currentAdminId: req.session.adminId
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server error');
+  }
+});
+
+
+router.post('/admin/add-admin', requireAdminLogin, requireOwner, async (req, res) => {
+  const { name, email, password, role } = req.body;
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await pool.query( 'INSERT INTO admins (name, email, password, role) VALUES ($1, $2, $3, $4)', [name, email, hashedPassword, role] );
+    res.redirect('/admin/manage-admins');
+  } catch (err) {
+    console.error(err);
+    if (err.code === '23505') { 
+      return res.status(400).send('An admin with this email already exists.');
+    }
+    res.status(500).send('Server error');
+  }
+});
+
+
+router.post('/admin/delete-admin/:id', requireAdminLogin, requireOwner, async (req, res) => {
+  const { id } = req.params;
+  try {
+    if (id == req.session.adminId) {
+        return res.status(400).send("You cannot delete your own account.");
+    }
+    const countResult = await pool.query('SELECT COUNT(*) FROM admins');
+    if (parseInt(countResult.rows[0].count, 10) > 1) {
+      await pool.query('DELETE FROM admins WHERE id = $1', [id]);
+    }
+    res.redirect('/admin/manage-admins');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server error');
+  }
+});
+
 
 module.exports = router;
