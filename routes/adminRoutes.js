@@ -20,13 +20,18 @@ const transporter = nodemailer.createTransport({
 });
 
 
-// --- DATABASE POOL ---
+// --- DATABASE POOL WITH TIMEZONE FIX ---
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
     rejectUnauthorized: false
   }
 });
+// This ensures all database operations use the correct timezone
+pool.on('connect', (client) => {
+  client.query("SET TIME ZONE 'Asia/Kolkata'");
+});
+
 
 const noticeStorage = multer.diskStorage({
   destination: './public/notices/',
