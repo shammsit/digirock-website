@@ -3,12 +3,23 @@
 <div class="dashboard-layout">
   <main class="dashboard-main">
     <h1>Access Denied</h1>
-    <div style="padding: 1rem; margin-top: 1rem; border-radius: 5px; background-color: #d1ecf1; color: #0c5460;">
+    <div style="padding: 1rem; margin-top: 1rem; border-radius: 5px; background-color: #f8d7da; color: #721c24;">
         <p>You do not have permission to view the <strong><%= section %></strong> section.</p>
-        <p>A request has been sent to the owner for approval. You will be able to access this page once your request is approved.</p>
     </div>
+
+    <% if (typeof requestSent === 'undefined' || !requestSent) { %>
+      <form action="/admin/request-access" method="POST" style="margin-top: 1.5rem;">
+        <input type="hidden" name="section" value="<%= section %>">
+        <button type="submit" style="background-color: #ffc107; color: #212529; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer;">Request Access from Owner</button>
+      </form>
+    <% } else { %>
+      <div style="padding: 1rem; margin-top: 1.5rem; border-radius: 5px; background-color: #d4edda; color: #155724;">
+        <p>Your request to access this section has been sent to the owner for approval.</p>
+      </div>
+    <% } %>
+
     <br>
-    <a href="/dashboard" style="text-decoration: none; background-color: #007bff; color: white; padding: 10px 15px; border-radius: 5px;">Return to Dashboard</a>
+    <a href="/dashboard" style="text-decoration: none; color: #007bff;">Return to Dashboard</a>
   </main>
 
   <%- include('../partials/admin-sidebar') %>
