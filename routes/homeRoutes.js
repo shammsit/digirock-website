@@ -7,12 +7,16 @@ const Razorpay = require('razorpay');
 const crypto = require('crypto');
 require('dotenv').config();
 
-// --- DATABASE POOL ---
+// --- DATABASE POOL WITH TIMEZONE FIX ---
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
     rejectUnauthorized: false
   }
+});
+// This ensures all database operations use the correct timezone
+pool.on('connect', (client) => {
+  client.query("SET TIME ZONE 'Asia/Kolkata'");
 });
 
 // --- INITIALIZE RAZORPAY ---
@@ -104,8 +108,7 @@ router.post('/submit-feedback', async (req, res) => {
 // **CORRECTED** Public Noticeboard Page with Timezone Fix
 router.get('/noticeboard', async (req, res) => {
   try {
-    // The NOW() function returns the current time in the server's timezone (UTC).
-    // This query correctly compares the stored release_time with the current time.
+    // The NOW() function will now correctly use the Asia/Kolkata timezone
     const { rows } = await pool.query(
       `SELECT * FROM notices 
        WHERE release_time <= NOW()
