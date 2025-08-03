@@ -277,7 +277,8 @@ router.get('/dashboard', requireAdminLogin, async (req, res) => {
       pool.query('SELECT COUNT(*) as count, AVG(rating) as average FROM ratings'),
       pool.query('SELECT COUNT(*) as count FROM feedbacks'),
       pool.query('SELECT COUNT(*) as count FROM contact_messages'),
-      pool.query('SELECT COUNT(*) as count FROM notices WHERE expire_time IS NULL OR expire_time > NOW()'),
+      // **MODIFIED** Dashboard notice count with timezone fix and correct logic
+      pool.query("SELECT COUNT(*) as count FROM notices WHERE release_time <= NOW() AND (expire_time IS NULL OR expire_time > NOW())"),
       pool.query('SELECT * FROM donations ORDER BY created_at DESC LIMIT 5')
     ]);
     const stats = {

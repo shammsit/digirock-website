@@ -54,7 +54,6 @@ router.get('/feedback', (req, res) => { res.render('home/feedback'); });
 router.get('/rate-us', (req, res) => { res.render('home/rate-us'); });
 router.get('/thank-you', (req, res) => { res.render('home/thank-you'); });
 
-// **NEW ROUTE FOR PAYMENT SUCCESS PAGE**
 router.get('/payment-success', async (req, res) => {
   const paymentId = req.query.id;
   if (!paymentId) {
@@ -102,12 +101,13 @@ router.post('/submit-feedback', async (req, res) => {
   }
 });
 
+// **CORRECTED** Public Noticeboard Page with Timezone Fix
 router.get('/noticeboard', async (req, res) => {
   try {
     const { rows } = await pool.query(
-      `SELECT * FROM notices
+      `SELECT * FROM notices 
        WHERE release_time <= NOW()
-       AND (expire_time IS NULL OR expire_time > NOW())
+       AND (expire_time IS NULL OR expire_time > NOW()) 
        ORDER BY release_time DESC`
     );
     res.render('home/noticeboard', { notices: rows });
@@ -140,21 +140,17 @@ router.post('/submit-contact', (req, res) => {
 
 // --- RAZORPAY PAYMENT ROUTES ---
 
-// 1. Create Order
 router.post('/create-order', express.json(), async (req, res) => {
     const { amount, name, email } = req.body;
-
     const numericAmount = Number(amount);
     if (isNaN(numericAmount) || numericAmount < 1) {
         return res.status(400).send('Invalid amount.');
     }
-
     const options = {
-        amount: numericAmount * 100, // Amount in the smallest currency unit (paise)
+        amount: numericAmount * 100,
         currency: 'INR',
         receipt: `receipt_order_${new Date().getTime()}`,
     };
-
     try {
         const order = await razorpay.orders.create(options);
         res.json({
@@ -168,16 +164,13 @@ router.post('/create-order', express.json(), async (req, res) => {
     }
 });
 
-// 2. Verify Payment
 router.post('/verify-payment', express.json(), async (req, res) => {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature, name, email, amount } = req.body;
-
     const body = razorpay_order_id + '|' + razorpay_payment_id;
     const expectedSignature = crypto
         .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
         .update(body.toString())
         .digest('hex');
-
     if (expectedSignature === razorpay_signature) {
         try {
             const numericAmount = Number(amount);
@@ -195,5 +188,6 @@ router.post('/verify-payment', express.json(), async (req, res) => {
         res.status(400).send('Invalid signature. Payment verification failed.');
     }
 });
+
 
 module.exports = router;
