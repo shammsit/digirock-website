@@ -300,7 +300,84 @@ router.get('/dashboard', requireAdminLogin, async (req, res) => {
   }
 });
 
-// --- PROTECTED ROUTES WITH PERMISSION CHECKS ---
+// --- NOTICE MANAGEMENT ROUTES (RESTORED) ---
+router.get('/admin/give-notice', requireAdminLogin, checkPermission('Notices'), (req, res) => {
+  res.render('admin/give-notice');
+});
+
+router.post('/admin/give-notice', requireAdminLogin, checkPermission('Notices'), (req, res) => {
+  uploadNotice(req, res, async (err) => {
+    if (err) { return res.status(500).send('File upload error'); }
+    const { notice_type, title, body_text, release_time, expire_time } = req.body;
+    const attachmentPath = req.file ? req.file.path.replace('public', '') : null;
+    const expireTimeOrNull = expire_time ? expire_time : null;
+    try {
+      await pool.query( 'INSERT INTO notices (notice_type, title, body_text, attachment_path, release_time, expire_time) VALUES ($1, $2, $3, $4, $5, $6)', [notice_type, title, body_text, attachmentPath, release_time, expireTimeOrNull] );
+      res.redirect('/admin/notices');
+    } catch (dbErr) {
+      console.error(dbErr);
+      res.status(500).send('Database error');
+    }
+  });
+});
+
+router.get('/admin/notices', requireAdminLogin, checkPermission('Notices'), async (req, res) => {
+  try {
+    const { rows } = await pool.query('SELECT * FROM notices ORDER BY release_time DESC');
+    res.render('admin/admin-notices', { notices: rows });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server Error');
+  }
+});
+
+router.get('/admin/notices/edit/:id', requireAdminLogin, checkPermission('Notices'), async (req, res) => {
+  const { id } = req.params;
+  try {
+    const { rows } = await pool.query('SELECT * FROM notices WHERE id = $1', [id]);
+    if (rows.length > 0) {
+      res.render('admin/edit-notice', { notice: rows[0] });
+    } else {
+      res.redirect('/admin/notices');
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server error');
+  }
+});
+
+router.post('/admin/notices/update/:id', requireAdminLogin, checkPermission('Notices'), (req, res) => {
+  uploadNotice(req, res, async (err) => {
+    const { id } = req.params;
+    if (err) { return res.status(500).send('File upload error'); }
+    const { notice_type, title, body_text, release_time, expire_time, current_attachment } = req.body;
+    let attachmentPath = current_attachment;
+    if (req.file) {
+      attachmentPath = req.file.path.replace('public', '');
+    }
+    const expireTimeOrNull = expire_time ? expire_time : null;
+    try {
+      await pool.query( `UPDATE notices SET notice_type = $1, title = $2, body_text = $3, attachment_path = $4, release_time = $5, expire_time = $6 WHERE id = $7`, [notice_type, title, body_text, attachmentPath, release_time, expireTimeOrNull, id] );
+      res.redirect('/admin/notices');
+    } catch (dbErr) {
+      console.error(dbErr);
+      res.status(500).send('Database error');
+    }
+  });
+});
+
+router.post('/admin/notices/delete/:id', requireAdminLogin, checkPermission('Notices'), async (req, res) => {
+    const { id } = req.params;
+    try {
+        await pool.query('DELETE FROM notices WHERE id = $1', [id]);
+        res.redirect('/admin/notices');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server error');
+    }
+});
+
+// --- OTHER PROTECTED ROUTES WITH PERMISSION CHECKS ---
 router.get('/admin/donations', requireAdminLogin, checkPermission('Donations'), async (req, res) => {
   try {
     const { rows } = await pool.query('SELECT * FROM donations ORDER BY created_at DESC');
@@ -351,16 +428,6 @@ router.get('/admin/mails', requireAdminLogin, checkPermission('Mails'), async (r
   try {
     const { rows } = await pool.query('SELECT * FROM contact_messages ORDER BY created_at DESC');
     res.render('admin/admin-mails', { messages: rows });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Server Error');
-  }
-});
-
-router.get('/admin/notices', requireAdminLogin, checkPermission('Notices'), async (req, res) => {
-  try {
-    const { rows } = await pool.query('SELECT * FROM notices ORDER BY release_time DESC');
-    res.render('admin/admin-notices', { notices: rows });
   } catch (err) {
     console.error(err);
     res.status(500).send('Server Error');
