@@ -27,8 +27,8 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Import route files
-const homeRoutes = require('./routes/homeroute');    // Adjust filename as needed
-const adminRoutes = require('./routes/adminroute');   // Your admin routes (excluding notices)
+const homeRoutes = require('./routes/homeRoutes');    // Adjust filename as needed
+const adminRoutes = require('./routes/adminRoutes');   // Your admin routes (excluding notices)
 const noticeRoutes = require('./routes/noticesroute'); // If you split notices
 
 // Register routes
