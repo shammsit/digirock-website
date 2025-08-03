@@ -5,11 +5,12 @@
   <a href="/admin/feedbacks">Show Feedbacks</a>
   <a href="/admin/ratings">View Ratings</a>
   <a href="/admin/mails">Show Mails</a>
-  <a href="/admin/give-notice">Give Notice</a>
+  <a href="/admin/give-notice">Give Notice</aa>
   <a href="/admin/notices">Manage Notices</a>
 
   <% if (typeof adminRole !== 'undefined' && adminRole === 'owner') { %>
     <a href="/admin/manage-admins">Manage Admins</a>
+    <a href="/admin/manage-requests" style="background-color: #ffc107; color: #212529;">Access Requests</a>
   <% } %>
 
   <hr>
