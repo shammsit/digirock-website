@@ -258,6 +258,7 @@ form button {
   background: var(--card-bg);
   padding: 30px;
   border-radius: 12px;
+  overflow-x: auto; /* This line adds the horizontal scroll for wide tables */
 }
 
 .dashboard-sidebar {
