@@ -1,14 +1,15 @@
-/* --- Professional Redesign based on User Sketch --- */
+/* --- Professional Redesign with Collapsible Sidebar --- */
 
 /* 1. Core Styles & Variables */
 :root {
   --primary-color: #4A00E0;
   --accent-color: #8E2DE2;
-  --dark-text: #333333;
+  --dark-text: #212529;
   --light-text: #ffffff;
-  --body-bg: #f4f7f6;
+  --body-bg: #f8f9fa;
   --card-bg: #ffffff;
-  --border-color: #e0e0e0;
+  --border-color: #dee2e6;
+  --sidebar-bg: #111827;
   --shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
 }
 
@@ -19,6 +20,7 @@ body {
   padding: 0;
   background-color: var(--body-bg);
   color: var(--dark-text);
+  overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
 .page-wrapper {
@@ -36,7 +38,7 @@ h1, h2, h3, h4 {
 /* 2. Header & Main Navigation */
 .main-header {
   background: var(--card-bg);
-  padding: 15px 40px;
+  padding: 15px 30px;
   border-bottom: 1px solid var(--border-color);
   display: flex;
   justify-content: space-between;
@@ -47,26 +49,49 @@ h1, h2, h3, h4 {
   z-index: 1000;
 }
 
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.sidebar-toggle-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--dark-text);
+}
+.sidebar-toggle-btn svg {
+  transition: transform 0.3s ease;
+}
+.sidebar-toggle-btn:hover svg {
+  transform: scale(1.1);
+}
+
 .logo-container {
   display: flex;
   align-items: center;
 }
 
 .logo-img {
-  height: 50px;
-  margin-right: 15px;
+  height: 45px;
+  margin-right: 12px;
 }
 
 .logo-text h1 {
   margin: 0;
-  font-size: 1.8rem;
+  font-size: 1.7rem;
   font-weight: 700;
   line-height: 1;
 }
 
 .logo-text p {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: #777;
 }
 
@@ -99,40 +124,51 @@ h1, h2, h3, h4 {
 }
 
 
-/* 3. Main Content Layout */
+/* 3. Main Content Layout & Collapsible Sidebar */
 .content-wrapper {
   display: flex;
   flex: 1;
-  max-width: 1400px;
+  max-width: 1800px; /* Wider layout */
   width: 100%;
   margin: 0 auto;
 }
 
 .left-sidebar {
-  width: 220px;
-  background-color: var(--card-bg);
+  width: 240px;
+  background-color: var(--sidebar-bg);
   padding: 2rem 0;
-  border-right: 1px solid var(--border-color);
+  transition: margin-left 0.3s ease;
+  flex-shrink: 0; /* Prevent sidebar from shrinking */
+}
+
+.left-sidebar.collapsed {
+  margin-left: -240px;
 }
 
 .side-nav a {
-  display: block;
+  display: flex;
+  align-items: center;
   padding: 12px 30px;
   text-decoration: none;
-  color: var(--dark-text);
+  color: #aeb2b9;
   font-weight: 500;
   border-left: 4px solid transparent;
   transition: all 0.3s ease;
+  white-space: nowrap;
 }
 
 .side-nav a:hover {
-  background-color: #e9e6f8;
-  border-left-color: var(--primary-color);
+  background-color: #374151;
+  color: var(--light-text);
+  border-left-color: var(--accent-color);
 }
 
 .page-content {
-  flex: 1;
+  flex-grow: 1; /* Allow content to take up remaining space */
   padding: 2rem 3rem;
+  transition: all 0.3s ease;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* 4. Forms & Buttons */
@@ -176,7 +212,7 @@ form button {
   font-weight: 600;
 }
 
-/* 5. Admin Dashboard (No changes needed, will adapt) */
+/* 5. Admin Dashboard */
 .dashboard-layout {
   display: flex;
   gap: 20px;
@@ -189,7 +225,7 @@ form button {
 }
 .dashboard-sidebar {
   width: 250px;
-  background: var(--dark-text);
+  background: #1f2937;
   color: var(--light-text);
   padding: 20px;
   border-radius: 12px;
@@ -198,5 +234,36 @@ form button {
   color: var(--light-text);
 }
 .dashboard-sidebar a {
-  color: #eee;
+  color: #d1d5db;
+}
+.dashboard-sidebar a:hover {
+  background-color: #374151;
+  color: var(--light-text);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .main-header {
+    flex-direction: column;
+    gap: 15px;
+  }
+  .main-nav {
+    justify-content: center;
+  }
+  .page-content {
+    padding: 1.5rem;
+  }
+  .left-sidebar {
+    position: fixed;
+    height: 100%;
+    z-index: 1100;
+    left: 0;
+    top: 0;
+    margin-left: 0;
+    transform: translateX(-240px);
+    transition: transform 0.3s ease;
+  }
+  .left-sidebar:not(.collapsed) {
+    transform: translateX(0);
+  }
 }
