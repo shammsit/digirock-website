@@ -1,20 +1,22 @@
 <aside class="dashboard-sidebar">
-  <h3>Admin Options</h3>
-  <a href="/dashboard">Dashboard Home</a>
-  <a href="/admin/donations">Show Donations</a>
-  <a href="/admin/feedbacks">Show Feedbacks</a>
-  <a href="/admin/ratings">View Ratings</a>
-  <a href="/admin/mails">Show Mails</a>
-  <a href="/admin/give-notice">Give Notice</a>
-  <a href="/admin/notices">Manage Notices</a>
+  <h3 class="sidebar-title">Admin Options</h3>
+  <nav class="sidebar-nav">
+    <a href="/dashboard">Dashboard Home</a>
+    <a href="/admin/donations">Show Donations</a>
+    <a href="/admin/feedbacks">Show Feedbacks</a>
+    <a href="/admin/ratings">View Ratings</a>
+    <a href="/admin/mails">Show Mails</a>
+    <a href="/admin/give-notice">Give Notice</a>
+    <a href="/admin/notices">Manage Notices</a>
 
-  <% if (typeof adminRole !== 'undefined' && adminRole === 'owner') { %>
-    <a href="/admin/manage-admins">Manage Admins</a>
-    <a href="/admin/manage-requests" style="background-color: #ffc107; color: #212529;">Access Requests</a>
-  <% } %>
+    <% if (typeof adminRole !== 'undefined' && adminRole === 'owner') { %>
+      <a href="/admin/manage-admins">Manage Admins</a>
+      <a href="/admin/manage-requests" class="highlight-link">Access Requests</a>
+    <% } %>
 
-  <hr>
-  
-  <a href="/admin/change-password">Change Password</a>
-  <a href="/logout" class="logout-link">Logout</a>
+    <hr>
+
+    <a href="/admin/change-password">Change Password</a>
+    <a href="/logout" class="logout-link">Logout</a>
+  </nav>
 </aside>
