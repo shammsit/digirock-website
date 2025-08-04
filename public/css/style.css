@@ -1,4 +1,4 @@
-/* --- A Modern & Professional Redesign for digiROCK solution --- */
+/* --- Professional Redesign based on User Sketch --- */
 
 /* 1. Core Styles & Variables */
 :root {
@@ -21,10 +21,10 @@ body {
   color: var(--dark-text);
 }
 
-.container {
-  max-width: 1100px;
-  margin: 2rem auto;
-  padding: 0 20px;
+.page-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 h1, h2, h3, h4 {
@@ -33,20 +33,18 @@ h1, h2, h3, h4 {
   font-weight: 600;
 }
 
-p {
-  margin-bottom: 1rem;
-}
-
-/* 2. Header & Navigation */
+/* 2. Header & Main Navigation */
 .main-header {
   background: var(--card-bg);
-  padding: 15px 30px;
+  padding: 15px 40px;
   border-bottom: 1px solid var(--border-color);
   display: flex;
   justify-content: space-between;
   align-items: center;
   box-shadow: var(--shadow);
-  flex-wrap: wrap; /* Allow wrapping for responsiveness */
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
 .logo-container {
@@ -72,23 +70,19 @@ p {
   color: #777;
 }
 
-.main-header nav {
+.main-nav {
   display: flex;
-  flex-wrap: wrap; /* Allow buttons to wrap */
-  justify-content: flex-end;
-  gap: 8px;
-  align-items: center;
+  gap: 10px;
 }
 
 .nav-button {
-  padding: 10px 18px;
+  padding: 10px 20px;
   text-decoration: none;
   color: var(--primary-color);
   background-color: transparent;
   border-radius: 8px;
   font-weight: 500;
   transition: all 0.3s ease;
-  white-space: nowrap; /* Prevent button text from breaking */
 }
 
 .nav-button:hover {
@@ -105,7 +99,43 @@ p {
 }
 
 
-/* 3. Forms & Buttons (Modernized) */
+/* 3. Main Content Layout */
+.content-wrapper {
+  display: flex;
+  flex: 1;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.left-sidebar {
+  width: 220px;
+  background-color: var(--card-bg);
+  padding: 2rem 0;
+  border-right: 1px solid var(--border-color);
+}
+
+.side-nav a {
+  display: block;
+  padding: 12px 30px;
+  text-decoration: none;
+  color: var(--dark-text);
+  font-weight: 500;
+  border-left: 4px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.side-nav a:hover {
+  background-color: #e9e6f8;
+  border-left-color: var(--primary-color);
+}
+
+.page-content {
+  flex: 1;
+  padding: 2rem 3rem;
+}
+
+/* 4. Forms & Buttons */
 form {
   background: var(--card-bg);
   padding: 2rem;
@@ -133,12 +163,6 @@ form textarea {
   border-radius: 8px;
   box-sizing: border-box;
   font-family: 'Poppins', sans-serif;
-  transition: border-color 0.3s ease;
-}
-
-form input:focus, form select:focus, form textarea:focus {
-  outline: none;
-  border-color: var(--primary-color);
 }
 
 form button {
@@ -150,112 +174,29 @@ form button {
   cursor: pointer;
   font-size: 1rem;
   font-weight: 600;
-  transition: transform 0.2s ease, box-shadow 0.3s ease;
 }
 
-form button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(74, 0, 224, 0.3);
-}
-
-/* 4. Admin Dashboard Layout */
+/* 5. Admin Dashboard (No changes needed, will adapt) */
 .dashboard-layout {
   display: flex;
-  padding: 20px;
   gap: 20px;
 }
-
 .dashboard-main {
   flex: 1;
   background: var(--card-bg);
   padding: 30px;
   border-radius: 12px;
-  box-shadow: var(--shadow);
 }
-
 .dashboard-sidebar {
   width: 250px;
   background: var(--dark-text);
   color: var(--light-text);
   padding: 20px;
   border-radius: 12px;
-  box-shadow: var(--shadow);
 }
-
 .dashboard-sidebar h3 {
-  margin-top: 0;
   color: var(--light-text);
-  border-bottom: 1px solid #555;
-  padding-bottom: 10px;
 }
-
 .dashboard-sidebar a {
-  display: block;
   color: #eee;
-  text-decoration: none;
-  padding: 12px 15px;
-  border-radius: 8px;
-  margin-bottom: 5px;
-  transition: background-color 0.3s ease;
-}
-
-.dashboard-sidebar a:hover {
-  background-color: #444;
-}
-
-.dashboard-sidebar .logout-link {
-  color: #ffadad;
-}
-
-/* 5. Noticeboard Styling */
-.notice-item {
-  background: var(--card-bg);
-  padding: 25px;
-  border-radius: 12px;
-  margin-bottom: 20px;
-  box-shadow: var(--shadow);
-  border-left: 5px solid var(--primary-color);
-}
-
-.notice-item h3 {
-  margin-top: 0;
-}
-
-/* Star Rating (No changes needed, already good) */
-.star-rating {
-  display: flex;
-  flex-direction: row-reverse;
-  justify-content: center;
-  gap: 5px;
-}
-.star-rating input { display: none; }
-.star-rating label {
-  font-size: 2.5rem;
-  color: #ccc;
-  cursor: pointer;
-  transition: color 0.2s;
-}
-.star-rating input:checked ~ label,
-.star-rating label:hover,
-.star-rating label:hover ~ label {
-  color: #ffc700;
-}
-
-/* Responsive adjustments for navigation */
-@media (max-width: 1300px) {
-  .main-header {
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
-  }
-}
-
-@media (max-width: 768px) {
-    .main-header nav {
-        justify-content: center;
-    }
-    .nav-button {
-        padding: 8px 12px;
-        font-size: 0.9rem;
-    }
 }
