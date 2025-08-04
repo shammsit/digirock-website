@@ -4,60 +4,68 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>digiROCK solution</title>
-  
+
   <!-- Google Fonts: Poppins -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
+
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
 
 <div class="page-wrapper">
-  
+
+  <!-- Main Header -->
   <header class="main-header">
     <div class="header-left">
+      <!-- Sidebar toggle button -->
       <button id="sidebar-toggle" class="sidebar-toggle-btn">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
       </button>
+
+      <!-- Logo section -->
       <div class="logo-container">
         <img src="/images/DIGIROCK_logo_original.png" alt="digiROCK Logo" class="logo-img">
         <div class="logo-text">
-            <h1>digiROCK</h1>
-            <p>solution</p>
+          <h1>digiROCK</h1>
+          <p>solution</p>
         </div>
       </div>
     </div>
-    <nav class="main-nav">
-      <a href="/" class="nav-button">Home</a>
-      <a href="/contact" class="nav-button">Contact US</a>
-      <a href="/login" class="nav-button">Login</a>
-      <a href="/monitor_admin" class="nav-button admin">Admin Monitor</a>
-    </nav>
   </header>
 
+  <!-- Layout: Sidebar + Content -->
   <div class="content-wrapper">
+
+    <!-- Collapsible Sidebar -->
     <aside id="left-sidebar" class="left-sidebar collapsed">
       <div class="sidebar-header">
         <button id="sidebar-close" class="sidebar-close-btn">&times;</button>
       </div>
       <nav class="side-nav">
-        <!-- Main Nav Links for Mobile -->
-        <a href="/">Home</a>
-        <a href="/contact">Contact US</a>
-        <a href="/login">Login</a>
+        <!-- All Nav Links (Mobile + Desktop if needed) -->
+        <a href="/">🏠 Home</a>
+        <a href="/contact">📞 Contact Us</a>
+        <a href="/login">🔐 Login</a>
+        <a href="/monitor_admin">🛠 Admin Monitor</a>
         <hr class="sidebar-divider">
-        <!-- Secondary Nav Links -->
-        <a href="/signup">Sign-Up</a>
-        <a href="/noticeboard">Noticeboard</a>
-        <a href="/rate-us">Rate-Us</a>
-        <a href="/donate">Donate-Us</a>
-        <a href="/terms">T&C</a>
-        <a href="/feedback">Feedback</a>
+        <a href="/signup">📝 Sign-Up</a>
+        <a href="/noticeboard">📋 Noticeboard</a>
+        <a href="/rate-us">⭐ Rate-Us</a>
+        <a href="/donate">💰 Donate-Us</a>
+        <a href="/terms">📜 T&C</a>
+        <a href="/feedback">✉ Feedback</a>
       </nav>
     </aside>
+
+    <!-- Overlay for mobile sidebar -->
     <div id="overlay" class="overlay collapsed"></div>
 
+    <!-- Main Page Content -->
     <main id="page-content" class="page-content">
-      <!-- The content of each page (e.g., home.ejs, contact.ejs) will be displayed here -->
+      <!-- Page-specific content will be injected here -->
