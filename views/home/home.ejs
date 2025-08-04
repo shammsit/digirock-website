@@ -11,14 +11,33 @@
       <canvas id="homepageRatingsChart"></canvas>
     </div>
   </div>
+
+  <!-- START: NEW SOCIAL MEDIA SECTION -->
+  <% if (typeof socialLinks !== 'undefined' && socialLinks.length > 0) { %>
+    <div class="container" style="margin-top: 40px; text-align: center;">
+      <h2>Follow Us</h2>
+      <div class="social-links">
+        <% socialLinks.forEach(link => { %>
+          <a href="<%= link.link_url %>" target="_blank" rel="noopener noreferrer" title="<%= link.platform_name %>">
+            <i data-lucide="<%= link.platform_key %>"></i>
+          </a>
+        <% }) %>
+      </div>
+    </div>
+  <% } %>
+  <!-- END: NEW SOCIAL MEDIA SECTION -->
+
 </main>
 
-<!-- Chart.js CDN -->
+<!-- Chart.js & Lucide Icons CDN -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
 
 <!-- Ratings Chart Script -->
 <script>
   document.addEventListener('DOMContentLoaded', function () {
+    lucide.createIcons(); // Initialize Lucide icons
+
     const ctx = document.getElementById('homepageRatingsChart');
     const chartData = <%- chartData || '{}' %>;
 

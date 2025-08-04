@@ -323,3 +323,25 @@ form button {
     pointer-events: none;
   }
 }
+/* Social Media Links Section */
+.social-links {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 1rem;
+}
+
+.social-links a {
+  color: var(--dark-text);
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.social-links a:hover {
+  transform: scale(1.2);
+  color: var(--primary-color);
+}
+
+.social-links svg {
+  width: 32px;
+  height: 32px;
+}

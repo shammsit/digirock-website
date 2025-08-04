@@ -1,0 +1,64 @@
+<%- include('../partials/header') %>
+
+<div class="dashboard-layout">
+  <main class="dashboard-main">
+    <h1>Handle Social Media Links</h1>
+
+    <!-- Form to Add a New Link -->
+    <h2>Add New Link</h2>
+    <form action="/admin/social-media/add" method="POST" style="margin-bottom: 2rem;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+        <div>
+          <label for="platform_name">Platform Name (e.g., Facebook)</label>
+          <input type="text" id="platform_name" name="platform_name" required>
+        </div>
+        <div>
+          <label for="platform_key">Lucide Icon Key (e.g., facebook)</label>
+          <input type="text" id="platform_key" name="platform_key" required>
+        </div>
+        <div style="grid-column: 1 / -1;">
+          <label for="link_url">Full URL</label>
+          <input type="url" id="link_url" name="link_url" required>
+        </div>
+      </div>
+      <br>
+      <button type="submit">Add Link</button>
+    </form>
+
+    <hr>
+
+    <!-- Table of Existing Links -->
+    <h2>Existing Links</h2>
+    <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+      <thead>
+        <tr style="background-color: #f2f2f2;">
+          <th style="padding: 10px; border: 1px solid #ddd;">Platform</th>
+          <th style="padding: 10px; border: 1px solid #ddd;">URL</th>
+          <th style="padding: 10px; border: 1px solid #ddd;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if(links.length > 0) { %>
+          <% links.forEach(link => { %>
+            <tr>
+              <td style="padding: 10px; border: 1px solid #ddd;"><%= link.platform_name %></td>
+              <td style="padding: 10px; border: 1px solid #ddd;"><a href="<%= link.link_url %>" target="_blank"><%= link.link_url %></a></td>
+              <td style="padding: 10px; border: 1px solid #ddd;">
+                <form action="/admin/social-media/delete/<%= link.id %>" method="POST" onsubmit="return confirm('Are you sure?');">
+                  <button type="submit" style="background-color: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">Delete</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="3" style="padding: 10px; border: 1px solid #ddd; text-align: center;">No social media links found.</td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </main>
+  <%- include('../partials/admin-sidebar') %>
+</div>
+
+<%- include('../partials/footer') %>

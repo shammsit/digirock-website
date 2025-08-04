@@ -12,7 +12,7 @@
 
   <nav class="sidebar-nav">
     <a href="/dashboard"><i data-lucide="home"></i><span>Dashboard</span></a>
-    <a href="/admin/donations"><i data-lucide="donate"></i><span>Donations</span></a>
+    <a href="/admin/donations"><i data-lucide="dollar-sign"></i><span>Donations</span></a>
     <a href="/admin/feedbacks"><i data-lucide="message-circle"></i><span>Feedbacks</span></a>
     <a href="/admin/ratings"><i data-lucide="star"></i><span>Ratings</span></a>
     <a href="/admin/mails"><i data-lucide="mail"></i><span>Mails</span></a>
@@ -22,6 +22,7 @@
     <% if (typeof adminRole !== 'undefined' && adminRole === 'owner') { %>
       <a href="/admin/manage-admins"><i data-lucide="users"></i><span>Manage Admins</span></a>
       <a href="/admin/manage-requests" class="highlight-link"><i data-lucide="inbox"></i><span>Access Requests</span></a>
+      <a href="/admin/handle-social-media"><i data-lucide="share-2"></i><span>Handle Social Media</span></a>
     <% } %>
 
     <hr>

@@ -27,14 +27,16 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Import route files
-const homeRoutes = require('./routes/homeRoutes');    // Adjust filename as needed
-const adminRoutes = require('./routes/adminRoutes');   // Your admin routes (excluding notices)
-const noticeRoutes = require('./routes/noticesroute'); // If you split notices
+const homeRoutes = require('./routes/homeRoutes');
+const adminRoutes = require('./routes/adminRoutes');
+const noticeRoutes = require('./routes/noticesroute');
+const socialMediaRoutes = require('./routes/socialMediaRoutes'); // <-- ADDED
 
 // Register routes
 app.use('/', homeRoutes);
 app.use('/', adminRoutes);
-app.use('/', noticeRoutes); // optional if notices in separate file
+app.use('/', noticeRoutes);
+app.use('/', socialMediaRoutes); // <-- ADDED
 
 // Start server
 app.listen(port, () => {

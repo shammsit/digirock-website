@@ -43,10 +43,16 @@ router.get('/', async (req, res) => {
         labels: summaryResult.rows.map(row => `${row.rating} Star`),
         data: summaryResult.rows.map(row => row.count)
       };
-      res.render('home/home', { chartData: JSON.stringify(chartData) });
+
+      const socialLinksResult = await pool.query('SELECT platform_name, platform_key, link_url FROM social_media_links ORDER BY platform_name');
+      
+      res.render('home/home', { 
+          chartData: JSON.stringify(chartData),
+          socialLinks: socialLinksResult.rows
+      });
     } catch (err) {
       console.error(err);
-      res.render('home/home', { chartData: '{}' });
+      res.render('home/home', { chartData: '{}', socialLinks: [] });
     }
 });
 router.get('/contact', (req, res) => { res.render('home/contact'); });
