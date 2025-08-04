@@ -8,12 +8,16 @@
     const sidebarClose = document.getElementById('sidebar-close');
     const sidebar = document.getElementById('left-sidebar');
     
-    function toggleSidebar() {
-      sidebar.classList.toggle('collapsed');
+    function openSidebar() {
+      sidebar.classList.remove('collapsed');
     }
 
-    sidebarToggle.addEventListener('click', toggleSidebar);
-    sidebarClose.addEventListener('click', toggleSidebar);
+    function closeSidebar() {
+      sidebar.classList.add('collapsed');
+    }
+
+    sidebarToggle.addEventListener('click', openSidebar);
+    sidebarClose.addEventListener('click', closeSidebar);
   });
 </script>
 

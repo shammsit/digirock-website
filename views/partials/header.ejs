@@ -39,8 +39,16 @@
 
   <div class="content-wrapper">
     <aside id="left-sidebar" class="left-sidebar collapsed">
-      <button id="sidebar-close" class="sidebar-close-btn">&times;</button>
+      <div class="sidebar-header">
+        <button id="sidebar-close" class="sidebar-close-btn">&times;</button>
+      </div>
       <nav class="side-nav">
+        <!-- Main Nav Links for Mobile -->
+        <a href="/">Home</a>
+        <a href="/contact">Contact US</a>
+        <a href="/login">Login</a>
+        <hr class="sidebar-divider">
+        <!-- Secondary Nav Links -->
         <a href="/signup">Sign-Up</a>
         <a href="/noticeboard">Noticeboard</a>
         <a href="/rate-us">Rate-Us</a>
@@ -49,6 +57,7 @@
         <a href="/feedback">Feedback</a>
       </nav>
     </aside>
+    <div id="overlay" class="overlay collapsed"></div>
 
     <main id="page-content" class="page-content">
       <!-- The content of each page (e.g., home.ejs, contact.ejs) will be displayed here -->
