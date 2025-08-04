@@ -128,7 +128,7 @@ h1, h2, h3, h4 {
 .content-wrapper {
   display: flex;
   flex: 1;
-  max-width: 1800px;
+  max-width: 1800px; /* Wider layout */
   width: 100%;
   margin: 0 auto;
 }
