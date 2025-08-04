@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { Pool } = require('pg');
+const { requireAdminLogin, setPermissionSection, checkPermission } = require('../middleware/auth');
 require('dotenv').config();
 
 const pool = new Pool({
@@ -8,18 +9,13 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false },
 });
 
-// Middleware to ensure only the owner can access these routes
-const requireOwner = (req, res, next) => {
-    // This checks if the logged-in admin has the role of 'owner'
-    if (req.session.isAdmin && req.session.adminRole === 'owner') {
-        next();
-    } else {
-        res.status(403).send('Forbidden: You do not have permission for this action.');
-    }
-};
+const permissionCheck = checkPermission(pool);
+
+// Define the middleware array to be used for all social media routes
+const socialMediaPermission = [requireAdminLogin, setPermissionSection('Social Media'), permissionCheck];
 
 // Route to display the social media management page
-router.get('/admin/handle-social-media', requireOwner, async (req, res) => {
+router.get('/admin/handle-social-media', socialMediaPermission, async (req, res) => {
   try {
     const { rows } = await pool.query('SELECT * FROM social_media_links ORDER BY platform_name');
     res.render('admin/handle-social-media', { links: rows, adminRole: req.session.adminRole });
@@ -30,7 +26,7 @@ router.get('/admin/handle-social-media', requireOwner, async (req, res) => {
 });
 
 // Route to add a new social media link
-router.post('/admin/social-media/add', requireOwner, async (req, res) => {
+router.post('/admin/social-media/add', socialMediaPermission, async (req, res) => {
   const { platform_name, platform_key, link_url } = req.body;
   try {
     await pool.query(
@@ -45,7 +41,7 @@ router.post('/admin/social-media/add', requireOwner, async (req, res) => {
 });
 
 // Route to delete a social media link
-router.post('/admin/social-media/delete/:id', requireOwner, async (req, res) => {
+router.post('/admin/social-media/delete/:id', socialMediaPermission, async (req, res) => {
   try {
     await pool.query('DELETE FROM social_media_links WHERE id = $1', [req.params.id]);
     res.redirect('/admin/handle-social-media');

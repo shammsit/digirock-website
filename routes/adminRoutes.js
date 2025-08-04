@@ -5,6 +5,7 @@ const { Pool } = require('pg');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
+const { requireAdminLogin, requireOwner, setPermissionSection, checkPermission } = require('../middleware/auth');
 require('dotenv').config();
 
 // --- Nodemailer Setup ---
@@ -27,53 +28,8 @@ pool.on('connect', (client) => {
   client.query("SET TIME ZONE 'Asia/Kolkata'");
 });
 
-// --- Middleware ---
-const requireAdminLogin = (req, res, next) => {
-  if (!req.session.isAdmin) return res.redirect('/monitor_admin');
-  res.locals.adminRole = req.session.adminRole;
-  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
-  res.setHeader('Pragma', 'no-cache');
-  res.setHeader('Expires', '0');
-  next();
-};
-
-const requireOwner = (req, res, next) => {
-  if (req.session.adminRole !== 'owner') {
-    return res.status(403).send('Forbidden: You do not have permission to access this page.');
-  }
-  next();
-};
-
-const checkPermission = (section) => {
-  return async (req, res, next) => {
-    const adminId = req.session.adminId;
-    const adminRole = req.session.adminRole;
-
-    if (adminRole === 'owner') return next();
-
-    try {
-      const permResult = await pool.query(
-        'SELECT * FROM admin_permissions WHERE admin_id = $1 AND allowed_section = $2',
-        [adminId, section]
-      );
-
-      if (permResult.rows.length > 0) return next();
-
-      const requestResult = await pool.query(
-        'SELECT * FROM access_requests WHERE admin_id = $1 AND requested_section = $2 AND status = $3',
-        [adminId, section, 'pending']
-      );
-
-      res.render('admin/access-denied', {
-        section,
-        requestSent: requestResult.rows.length > 0,
-      });
-    } catch (err) {
-      console.error("Permission check error:", err);
-      res.status(500).send("Server error during permission check.");
-    }
-  };
-};
+// --- Middleware passed to the checkPermission function ---
+const permissionCheck = checkPermission(pool);
 
 // --- Admin Login / Logout / Dashboard ---
 router.get('/monitor_admin', (req, res) => { res.render('admin/monitor_admin'); });
@@ -253,6 +209,7 @@ router.get('/dashboard', requireAdminLogin, async (req, res) => {
       adminName: req.session.adminName,
       stats,
       recentDonations: recentDonationsData.rows,
+      adminRole: req.session.adminRole
     });
   } catch (err) {
     console.error("Error fetching dashboard data:", err);
@@ -260,29 +217,29 @@ router.get('/dashboard', requireAdminLogin, async (req, res) => {
   }
 });
 
-// --- Other admin routes (donations, feedbacks, ratings, mails, access requests, admin management) ---
+// --- Other admin routes ---
 
-router.get('/admin/donations', requireAdminLogin, checkPermission('Donations'), async (req, res) => {
+router.get('/admin/donations', requireAdminLogin, setPermissionSection('Donations'), permissionCheck, async (req, res) => {
   try {
     const { rows } = await pool.query('SELECT * FROM donations ORDER BY created_at DESC');
-    res.render('admin/admin-donations', { donations: rows });
+    res.render('admin/admin-donations', { donations: rows, adminRole: req.session.adminRole });
   } catch (err) {
     console.error(err);
     res.status(500).send('Server Error');
   }
 });
 
-router.get('/admin/feedbacks', requireAdminLogin, checkPermission('Feedbacks'), async (req, res) => {
+router.get('/admin/feedbacks', requireAdminLogin, setPermissionSection('Feedbacks'), permissionCheck, async (req, res) => {
   try {
     const { rows } = await pool.query('SELECT * FROM feedbacks ORDER BY created_at DESC');
-    res.render('admin/admin-feedbacks', { feedbacks: rows });
+    res.render('admin/admin-feedbacks', { feedbacks: rows, adminRole: req.session.adminRole });
   } catch (err) {
     console.error(err);
     res.status(500).send('Server error');
   }
 });
 
-router.get('/admin/ratings', requireAdminLogin, checkPermission('Ratings'), async (req, res) => {
+router.get('/admin/ratings', requireAdminLogin, setPermissionSection('Ratings'), permissionCheck, async (req, res) => {
   const timeFilter = req.query.time_filter || 'all';
   let whereClause = '';
   switch (timeFilter) {
@@ -301,6 +258,7 @@ router.get('/admin/ratings', requireAdminLogin, checkPermission('Ratings'), asyn
       ratings: ratingsResult.rows,
       chartData: JSON.stringify(chartData),
       currentTimeFilter: timeFilter,
+      adminRole: req.session.adminRole
     });
   } catch (err) {
     console.error(err);
@@ -308,50 +266,50 @@ router.get('/admin/ratings', requireAdminLogin, checkPermission('Ratings'), asyn
   }
 });
 
-router.get('/admin/mails', requireAdminLogin, checkPermission('Mails'), async (req, res) => {
+router.get('/admin/mails', requireAdminLogin, setPermissionSection('Mails'), permissionCheck, async (req, res) => {
   try {
     const { rows } = await pool.query('SELECT * FROM contact_messages ORDER BY created_at DESC');
-    res.render('admin/admin-mails', { messages: rows });
+    res.render('admin/admin-mails', { messages: rows, adminRole: req.session.adminRole });
   } catch (err) {
     console.error(err);
     res.status(500).send('Server Error');
   }
 });
 
-router.post('/admin/mails/delete/:id', requireAdminLogin, checkPermission('Mails'), async (req, res) => {
+router.post('/admin/mails/delete/:id', requireAdminLogin, setPermissionSection('Mails'), permissionCheck, async (req, res) => {
   const { id } = req.params;
   try {
     await pool.query('DELETE FROM contact_messages WHERE id = $1', [id]);
     res.redirect('/admin/mails');
-  } catch (err) {
+  } catch (err)
+ {
     console.error("Error deleting mail:", err);
     res.status(500).send("Server error while deleting mail.");
   }
 });
 
-// --- START: NEW ROUTES FOR MANAGING ADMIN ACCESS ---
+// --- START: MODIFIED ROUTES FOR MANAGING ADMIN ACCESS ---
 
 // 1. Display the page to manage a specific admin's access
 router.get('/admin/manage-access/:id', requireAdminLogin, requireOwner, async (req, res) => {
     try {
         const { id } = req.params;
-        const allSections = ['Donations', 'Feedbacks', 'Ratings', 'Mails', 'Notices'];
+        const allSections = ['Donations', 'Feedbacks', 'Ratings', 'Mails', 'Notices', 'Social Media']; // <-- ADDED "Social Media"
 
-        // Get admin details
         const adminResult = await pool.query('SELECT id, name FROM admins WHERE id = $1', [id]);
         if (adminResult.rows.length === 0) {
             return res.status(404).send('Admin not found.');
         }
         const admin = adminResult.rows[0];
 
-        // Get current permissions for that admin
         const permissionResult = await pool.query('SELECT allowed_section FROM admin_permissions WHERE admin_id = $1', [id]);
         const currentPermissions = permissionResult.rows.map(p => p.allowed_section);
 
         res.render('admin/manage-access', {
             admin,
             allSections,
-            currentPermissions
+            currentPermissions,
+            adminRole: req.session.adminRole
         });
     } catch (err) {
         console.error("Error loading manage access page:", err);
@@ -364,21 +322,17 @@ router.post('/admin/update-access/:id', requireAdminLogin, requireOwner, async (
     const client = await pool.connect();
     try {
         const { id } = req.params;
-        let { permissions } = req.body; // This will be an array or a single string
+        let { permissions } = req.body;
 
-        // Ensure permissions is always an array
         if (!permissions) {
             permissions = [];
         } else if (!Array.isArray(permissions)) {
             permissions = [permissions];
         }
 
-        await client.query('BEGIN'); // Start transaction
-
-        // First, delete all old permissions for this admin
+        await client.query('BEGIN');
         await client.query('DELETE FROM admin_permissions WHERE admin_id = $1', [id]);
 
-        // Then, insert the new permissions
         if (permissions.length > 0) {
             const insertPromises = permissions.map(section => {
                 return client.query('INSERT INTO admin_permissions (admin_id, allowed_section) VALUES ($1, $2)', [id, section]);
@@ -386,19 +340,19 @@ router.post('/admin/update-access/:id', requireAdminLogin, requireOwner, async (
             await Promise.all(insertPromises);
         }
 
-        await client.query('COMMIT'); // Commit transaction
+        await client.query('COMMIT');
         res.redirect('/admin/manage-admins');
 
     } catch (err) {
-        await client.query('ROLLBACK'); // Rollback on error
+        await client.query('ROLLBACK');
         console.error("Error updating permissions:", err);
         res.status(500).send("Server error while updating permissions.");
     } finally {
-        client.release(); // Release the client back to the pool
+        client.release();
     }
 });
 
-// --- END: NEW ROUTES ---
+// --- END: MODIFIED ROUTES ---
 
 
 // Access request routes
@@ -420,7 +374,7 @@ router.post('/admin/request-access', requireAdminLogin, async (req, res) => {
         [adminId, adminName, adminRole, section]
       );
     }
-    res.render('admin/access-denied', { section, requestSent: true });
+    res.render('admin/access-denied', { section, requestSent: true, adminRole: req.session.adminRole });
   } catch (err) {
     console.error("Error creating access request:", err);
     res.status(500).send("Server error.");
@@ -430,7 +384,7 @@ router.post('/admin/request-access', requireAdminLogin, async (req, res) => {
 router.get('/admin/manage-requests', requireAdminLogin, requireOwner, async (req, res) => {
   try {
     const { rows } = await pool.query("SELECT * FROM access_requests WHERE status = 'pending' ORDER BY created_at DESC");
-    res.render('admin/manage-requests', { requests: rows });
+    res.render('admin/manage-requests', { requests: rows, adminRole: req.session.adminRole });
   } catch (err) {
     console.error("Error fetching access requests:", err);
     res.status(500).send("Server error.");
@@ -467,7 +421,7 @@ router.post('/admin/deny-request/:id', requireAdminLogin, requireOwner, async (r
 router.get('/admin/manage-admins', requireAdminLogin, requireOwner, async (req, res) => {
   try {
     const { rows } = await pool.query('SELECT id, name, email, role FROM admins ORDER BY name');
-    res.render('admin/manage-admins', { admins: rows, currentAdminId: req.session.adminId });
+    res.render('admin/manage-admins', { admins: rows, currentAdminId: req.session.adminId, adminRole: req.session.adminRole });
   } catch (err) {
     console.error(err);
     res.status(500).send('Server error');

@@ -4,6 +4,7 @@ const router = express.Router();
 const { Pool } = require('pg');
 const multer = require('multer');
 const path = require('path');
+const { requireAdminLogin, setPermissionSection, checkPermission } = require('../middleware/auth');
 require('dotenv').config();
 
 // --- Database Pool ---
@@ -15,6 +16,8 @@ pool.on('connect', (client) => {
   client.query("SET TIME ZONE 'Asia/Kolkata'");
 });
 
+const permissionCheck = checkPermission(pool);
+
 // Multer setup for notice attachments
 const noticeStorage = multer.diskStorage({
   destination: './public/notices/',
@@ -24,42 +27,6 @@ const noticeStorage = multer.diskStorage({
 });
 const uploadNotice = multer({ storage: noticeStorage }).single('attachment');
 
-// Middleware (reuse or import these from adminroute.js if possible)
-const requireAdminLogin = (req, res, next) => {
-  if (!req.session.isAdmin) return res.redirect('/monitor_admin');
-  res.locals.adminRole = req.session.adminRole;
-  next();
-};
-
-const checkPermission = (section) => {
-  return async (req, res, next) => {
-    const adminId = req.session.adminId;
-    const adminRole = req.session.adminRole;
-    if (adminRole === 'owner') return next();
-
-    try {
-      const permResult = await pool.query(
-        'SELECT * FROM admin_permissions WHERE admin_id = $1 AND allowed_section = $2',
-        [adminId, section]
-      );
-      if (permResult.rows.length > 0) return next();
-
-      const requestResult = await pool.query(
-        'SELECT * FROM access_requests WHERE admin_id = $1 AND requested_section = $2 AND status = $3',
-        [adminId, section, 'pending']
-      );
-
-      res.render('admin/access-denied', {
-        section,
-        requestSent: requestResult.rows.length > 0,
-      });
-    } catch (err) {
-      console.error("Permission check error:", err);
-      return res.status(500).send("Server error during permission check.");
-    }
-  };
-};
-
 // Helper function to convert local datetime to UTC ISO string
 function toUTC(dateStr) {
   if (!dateStr) return null;
@@ -68,12 +35,13 @@ function toUTC(dateStr) {
 }
 
 // Notice routes
+const noticePermission = [setPermissionSection('Notices'), permissionCheck];
 
-router.get('/admin/give-notice', requireAdminLogin, checkPermission('Notices'), (req, res) => {
-  res.render('admin/give-notice');
+router.get('/admin/give-notice', requireAdminLogin, noticePermission, (req, res) => {
+  res.render('admin/give-notice', { adminRole: req.session.adminRole });
 });
 
-router.post('/admin/give-notice', requireAdminLogin, checkPermission('Notices'), (req, res) => {
+router.post('/admin/give-notice', requireAdminLogin, noticePermission, (req, res) => {
   uploadNotice(req, res, async (err) => {
     if (err) return res.status(500).send('File upload error');
     const { notice_type, title, body_text, release_time, expire_time } = req.body;
@@ -93,29 +61,29 @@ router.post('/admin/give-notice', requireAdminLogin, checkPermission('Notices'),
   });
 });
 
-router.get('/admin/notices', requireAdminLogin, checkPermission('Notices'), async (req, res) => {
+router.get('/admin/notices', requireAdminLogin, noticePermission, async (req, res) => {
   try {
     const { rows } = await pool.query('SELECT * FROM notices ORDER BY release_time DESC');
-    res.render('admin/admin-notices', { notices: rows });
+    res.render('admin/admin-notices', { notices: rows, adminRole: req.session.adminRole });
   } catch (err) {
     console.error(err);
     res.status(500).send('Server Error');
   }
 });
 
-router.get('/admin/notices/edit/:id', requireAdminLogin, checkPermission('Notices'), async (req, res) => {
+router.get('/admin/notices/edit/:id', requireAdminLogin, noticePermission, async (req, res) => {
   const { id } = req.params;
   try {
     const { rows } = await pool.query('SELECT * FROM notices WHERE id = $1', [id]);
     if (rows.length === 0) return res.redirect('/admin/notices');
-    res.render('admin/edit-notice', { notice: rows[0] });
+    res.render('admin/edit-notice', { notice: rows[0], adminRole: req.session.adminRole });
   } catch (err) {
     console.error(err);
     res.status(500).send('Server error');
   }
 });
 
-router.post('/admin/notices/update/:id', requireAdminLogin, checkPermission('Notices'), (req, res) => {
+router.post('/admin/notices/update/:id', requireAdminLogin, noticePermission, (req, res) => {
   uploadNotice(req, res, async (err) => {
     const { id } = req.params;
     if (err) return res.status(500).send('File upload error');
@@ -137,7 +105,7 @@ router.post('/admin/notices/update/:id', requireAdminLogin, checkPermission('Not
   });
 });
 
-router.post('/admin/notices/delete/:id', requireAdminLogin, checkPermission('Notices'), async (req, res) => {
+router.post('/admin/notices/delete/:id', requireAdminLogin, noticePermission, async (req, res) => {
   const { id } = req.params;
   try {
     await pool.query('DELETE FROM notices WHERE id = $1', [id]);
