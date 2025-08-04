@@ -1,0 +1,87 @@
+/* Base Sidebar Style */
+.dashboard-sidebar {
+    width: 260px;
+    padding: 20px;
+    border-radius: 12px;
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+}
+
+/* Dark Theme */
+.dashboard-sidebar.dark {
+    background-color: #1e293b; /* Dark navy */
+    color: #ffffff;
+}
+
+.dashboard-sidebar.dark .sidebar-title {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.dashboard-sidebar.dark .sidebar-nav a {
+    color: #cbd5e1;
+}
+
+.dashboard-sidebar.dark .sidebar-nav a::after {
+    background: #38bdf8;
+}
+
+/* Light Theme */
+.dashboard-sidebar.light {
+    background-color: #f1f5f9; /* Light gray */
+    color: #1e293b;
+}
+
+.dashboard-sidebar.light .sidebar-title {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-sidebar.light .sidebar-nav a {
+    color: #334155;
+}
+
+.dashboard-sidebar.light .sidebar-nav a::after {
+    background: #0ea5e9;
+}
+
+/* Common Link Hover */
+.sidebar-nav a {
+    display: block;
+    text-decoration: none;
+    padding: 8px 0;
+    position: relative;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+}
+
+.sidebar-nav a:hover::after {
+    width: 100%;
+}
+
+.sidebar-nav a:hover {
+    padding-left: 10px;
+}
+
+/* Highlighted Links */
+.sidebar-nav .highlight-link {
+    color: #facc15;
+    font-weight: bold;
+}
+
+.sidebar-nav .logout-link {
+    color: #f87171;
+}
+
+.sidebar-nav hr {
+    border: none;
+    border-top: 1px solid rgba(0, 0, 0, 0.2);
+    margin: 20px 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .dashboard-sidebar {
+        width: 100%;
+        border-radius: 0;
+    }
+}

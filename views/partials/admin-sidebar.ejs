@@ -1,7 +1,11 @@
-<link rel="stylesheet" href="public/css/style.css">
+<link rel="stylesheet" href="/css/admin_sidebar_style.css">
 
-<aside class="dashboard-sidebar">
-  <h3 class="sidebar-title">Admin Options</h3>
+<aside class="dashboard-sidebar dark" id="adminSidebar">
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <h3 class="sidebar-title">Admin Options</h3>
+    <button id="themeToggle" style="background:none; border:none; color:inherit; cursor:pointer; font-size: 1rem;" title="Toggle Light/Dark">🌓</button>
+  </div>
+
   <nav class="sidebar-nav">
     <a href="/dashboard">Dashboard Home</a>
     <a href="/admin/donations">Show Donations</a>
@@ -22,3 +26,25 @@
     <a href="/logout" class="logout-link">Logout</a>
   </nav>
 </aside>
+
+<script>
+  const toggleBtn = document.getElementById('themeToggle');
+  const sidebar = document.getElementById('adminSidebar');
+
+  // Load saved theme on page load
+  const savedTheme = localStorage.getItem('adminSidebarTheme');
+  if (savedTheme === 'light') {
+    sidebar.classList.remove('dark');
+    sidebar.classList.add('light');
+  }
+
+  // Toggle Theme & Save Preference
+  toggleBtn.addEventListener('click', () => {
+    sidebar.classList.toggle('dark');
+    sidebar.classList.toggle('light');
+
+    // Save current theme in localStorage
+    const isLight = sidebar.classList.contains('light');
+    localStorage.setItem('adminSidebarTheme', isLight ? 'light' : 'dark');
+  });
+</script>
