@@ -1,2 +1,29 @@
+    </main>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sidebar = document.getElementById('left-sidebar');
+    const pageContent = document.getElementById('page-content');
+
+    // Function to toggle sidebar
+    function toggleSidebar() {
+      sidebar.classList.toggle('collapsed');
+      pageContent.classList.toggle('full-width');
+    }
+
+    // Event listener for the button
+    sidebarToggle.addEventListener('click', toggleSidebar);
+
+    // Check window size on load and hide sidebar if screen is small
+    if (window.innerWidth < 768) {
+        sidebar.classList.add('collapsed');
+        pageContent.classList.add('full-width');
+    }
+  });
+</script>
+
 </body>
 </html>
