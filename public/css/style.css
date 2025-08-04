@@ -1,38 +1,51 @@
-/* General Body Styles */
+/* --- A Modern & Professional Redesign for digiROCK solution --- */
+
+/* 1. Core Styles & Variables */
+:root {
+  --primary-color: #4A00E0;
+  --accent-color: #8E2DE2;
+  --dark-text: #333333;
+  --light-text: #ffffff;
+  --body-bg: #f4f7f6;
+  --card-bg: #ffffff;
+  --border-color: #e0e0e0;
+  --shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+}
+
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  line-height: 1.6;
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  line-height: 1.7;
   margin: 0;
   padding: 0;
-  background-color: #f4f4f4;
-  color: #333;
+  background-color: var(--body-bg);
+  color: var(--dark-text);
 }
 
-/* Container for Centered Content */
 .container {
-  max-width: 960px;
-  margin: auto;
-  overflow: hidden;
-  padding: 20px;
+  max-width: 1100px;
+  margin: 2rem auto;
+  padding: 0 20px;
 }
 
-/* Headings & Paragraphs */
-h1 {
-  color: #333;
+h1, h2, h3, h4 {
+  color: var(--dark-text);
   margin-bottom: 1rem;
+  font-weight: 600;
 }
+
 p {
   margin-bottom: 1rem;
 }
 
-/* Main Header Styling */
+/* 2. Header & Navigation */
 .main-header {
-  background: #ffffff;
-  padding: 0 30px;
-  border-bottom: 1px solid #ddd;
+  background: var(--card-bg);
+  padding: 15px 30px;
+  border-bottom: 1px solid var(--border-color);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-shadow: var(--shadow);
 }
 
 .logo-container {
@@ -41,140 +54,144 @@ p {
 }
 
 .logo-img {
-  height: 45px;
+  height: 50px;
   margin-right: 15px;
 }
 
-.logo-container h1 {
+.logo-text h1 {
   margin: 0;
-  font-size: 24px;
+  font-size: 1.8rem;
+  font-weight: 700;
+  line-height: 1;
 }
 
-/* Updated Navigation Bar Styling */
-.main-header nav a {
-  color: #333;
-  text-decoration: none;
-  padding: 8px 12px;
-  display: inline-block;
-  font-size: 14px;
-  vertical-align: middle;
+.logo-text p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #777;
 }
 
-.main-header nav a:hover {
-  background-color: #f4f4f4;
+.main-header nav {
+  display: flex;
+  gap: 10px;
 }
 
-/* Navigation Button Styling */
 .nav-button {
-  background-color: #b7bc1a;
-  color: rgb(14, 4, 46) !important;
-  border-radius: 5px;
-  margin-left: 8px;
-}
-.nav-button:hover {
-  background-color: #a9d748 !important;
-}
-
-.nav-button1 {
-  background-color: #007bff;
-  color: white !important;
-  border-radius: 5px;
-  margin-left: 8px;
-}
-.nav-button1:hover {
-  background-color: #0056b3 !important;
-}
-
-.nav-button2 {
-  background-color: #73317c;
-  color: white !important;
-  border-radius: 5px;
-  margin-left: 8px;
-}
-.nav-button2:hover {
-  background-color: #763064 !important;
-}
-
-/* Form Styling */
-form {
-  margin-top: 1.5rem;
-  background: #fff;
-  padding: 2rem;
+  padding: 10px 20px;
+  text-decoration: none;
+  color: var(--primary-color);
+  background-color: transparent;
   border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  font-weight: 500;
+  transition: all 0.3s ease;
 }
 
-form div {
-  margin-bottom: 1rem;
+.nav-button:hover {
+  background-color: var(--primary-color);
+  color: var(--light-text);
+}
+
+.nav-button.admin {
+  background-color: var(--accent-color);
+  color: var(--light-text);
+}
+.nav-button.admin:hover {
+  background-color: var(--primary-color);
+}
+
+
+/* 3. Forms & Buttons (Modernized) */
+form {
+  background: var(--card-bg);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
 }
 
 form label {
   display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
+  margin-bottom: 8px;
+  font-weight: 600;
 }
 
 form input[type="text"],
 form input[type="email"],
-form input[type="file"],
-form input[type="password"] {
+form input[type="password"],
+form input[type="number"],
+form input[type="datetime-local"],
+form select,
+form textarea {
   width: 100%;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box; /* Fixes padding issue */
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+  transition: border-color 0.3s ease;
+}
+
+form input:focus, form select:focus, form textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
 }
 
 form button {
-  background-color: #28a745;
-  color: white;
-  padding: 10px 15px;
+  background: linear-gradient(to right, var(--accent-color), var(--primary-color));
+  color: var(--light-text);
+  padding: 12px 25px;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
 }
 
 form button:hover {
-  background-color: #218838;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(74, 0, 224, 0.3);
 }
 
-
-/* Admin Dashboard Layout */
+/* 4. Admin Dashboard Layout */
 .dashboard-layout {
   display: flex;
   padding: 20px;
-  gap: 20px; /* Adds space between the columns */
+  gap: 20px;
 }
 
 .dashboard-main {
-  flex: 1; /* Takes up the remaining space */
-  background: #fff;
-  padding: 20px;
-  border-radius: 8px;
+  flex: 1;
+  background: var(--card-bg);
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
 }
 
 .dashboard-sidebar {
-  width: 250px; /* Fixed width for the sidebar */
-  background: #333;
-  color: #fff;
+  width: 250px;
+  background: var(--dark-text);
+  color: var(--light-text);
   padding: 20px;
-  border-radius: 8px;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
 }
 
 .dashboard-sidebar h3 {
   margin-top: 0;
-  color: #fff;
+  color: var(--light-text);
   border-bottom: 1px solid #555;
   padding-bottom: 10px;
 }
 
 .dashboard-sidebar a {
   display: block;
-  color: #fff;
+  color: #eee;
   text-decoration: none;
-  padding: 10px 0;
-  border-bottom: 1px solid #444;
+  padding: 12px 15px;
+  border-radius: 8px;
+  margin-bottom: 5px;
+  transition: background-color 0.3s ease;
 }
 
 .dashboard-sidebar a:hover {
@@ -182,80 +199,39 @@ form button:hover {
 }
 
 .dashboard-sidebar .logout-link {
-    color: #ffadad;
-    margin-top: 20px;
-    border-top: 1px solid #555;
+  color: #ffadad;
 }
 
-/* Star Rating Styling */
+/* 5. Noticeboard Styling */
+.notice-item {
+  background: var(--card-bg);
+  padding: 25px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+  border-left: 5px solid var(--primary-color);
+}
+
+.notice-item h3 {
+  margin-top: 0;
+}
+
+/* Star Rating (No changes needed, already good) */
 .star-rating {
   display: flex;
-  flex-direction: row-reverse; /* This is the key trick */
-  justify-content: flex-end;
+  flex-direction: row-reverse;
+  justify-content: center;
+  gap: 5px;
 }
-
-.star-rating input[type="radio"] {
-  display: none; /* Hide the actual radio buttons */
-}
-
+.star-rating input { display: none; }
 .star-rating label {
-  font-size: 3rem; /* Make stars bigger */
+  font-size: 2.5rem;
   color: #ccc;
   cursor: pointer;
   transition: color 0.2s;
 }
-
-.star-rating input[type="radio"]:checked ~ label,
+.star-rating input:checked ~ label,
 .star-rating label:hover,
 .star-rating label:hover ~ label {
-  color: #ffc700; /* Gold color for selected/hovered stars */
-}
-/* Print Button Styling */
-.print-button {
-  background-color: #5a6268;
-  color: white;
-  padding: 8px 15px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.print-button:hover {
-  background-color: #4a4f54;
-}
-
-/* Styles for when the page is printed */
-@media print {
-  /* Hide elements that shouldn't be printed */
-  .main-header, 
-  .dashboard-sidebar, 
-  .no-print,
-  form,
-  .dashboard-main > a { /* Hides buttons like '+ Create New Notice' */
-    display: none !important;
-  }
-
-  /* Reset the layout for printing */
-  body {
-    background-color: #fff;
-  }
-
-  .dashboard-layout {
-    display: block;
-    padding: 0;
-  }
-
-  .dashboard-main {
-    flex: none;
-    width: 100%;
-    box-shadow: none;
-    border-radius: 0;
-    padding: 0;
-  }
-  
-  /* Ensure table borders are visible */
-  table, th, td {
-    border: 1px solid #ddd !important;
-  }
+  color: #ffc700;
 }

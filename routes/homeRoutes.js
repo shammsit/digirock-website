@@ -108,18 +108,31 @@ router.post('/submit-feedback', async (req, res) => {
 // **CORRECTED** Public Noticeboard Page with Timezone Fix
 router.get('/noticeboard', async (req, res) => {
   try {
-    const { rows } = await pool.query(
-      `SELECT * FROM notices
-       WHERE release_time <= NOW()
-         AND (expire_time IS NULL OR expire_time > NOW())
-       ORDER BY release_time DESC`
-    );
-    res.render('home/noticeboard', { notices: rows });
+    const { rows } = await pool.query(`
+      SELECT * FROM notices
+      WHERE expire_time IS NULL OR expire_time > (NOW() - INTERVAL '1 day')
+      ORDER BY release_time DESC
+    `);
+
+    const nowUTC = new Date();
+    const timeZoneOffsetMinutes = 330; // IST = UTC+5:30
+    const nowInIST = new Date(nowUTC.getTime() + timeZoneOffsetMinutes * 60000);
+
+    const activeNotices = rows.filter(notice => {
+      const releaseDate = new Date(notice.release_time);
+      const expireDate = notice.expire_time ? new Date(notice.expire_time) : null;
+
+      return releaseDate <= nowInIST && (!expireDate || expireDate > nowInIST);
+    });
+
+    res.render('home/noticeboard', { notices: activeNotices });
+
   } catch (err) {
     console.error('Error loading notices:', err);
     res.status(500).send('Server error');
   }
 });
+
 
 
 router.post('/submit-contact', (req, res) => {
