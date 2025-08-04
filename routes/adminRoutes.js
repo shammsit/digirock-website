@@ -318,7 +318,6 @@ router.get('/admin/mails', requireAdminLogin, checkPermission('Mails'), async (r
   }
 });
 
-// START: NEW CODE BLOCK FOR DELETING MAIL
 router.post('/admin/mails/delete/:id', requireAdminLogin, checkPermission('Mails'), async (req, res) => {
   const { id } = req.params;
   try {
@@ -329,7 +328,78 @@ router.post('/admin/mails/delete/:id', requireAdminLogin, checkPermission('Mails
     res.status(500).send("Server error while deleting mail.");
   }
 });
-// END: NEW CODE BLOCK
+
+// --- START: NEW ROUTES FOR MANAGING ADMIN ACCESS ---
+
+// 1. Display the page to manage a specific admin's access
+router.get('/admin/manage-access/:id', requireAdminLogin, requireOwner, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const allSections = ['Donations', 'Feedbacks', 'Ratings', 'Mails', 'Notices'];
+
+        // Get admin details
+        const adminResult = await pool.query('SELECT id, name FROM admins WHERE id = $1', [id]);
+        if (adminResult.rows.length === 0) {
+            return res.status(404).send('Admin not found.');
+        }
+        const admin = adminResult.rows[0];
+
+        // Get current permissions for that admin
+        const permissionResult = await pool.query('SELECT allowed_section FROM admin_permissions WHERE admin_id = $1', [id]);
+        const currentPermissions = permissionResult.rows.map(p => p.allowed_section);
+
+        res.render('admin/manage-access', {
+            admin,
+            allSections,
+            currentPermissions
+        });
+    } catch (err) {
+        console.error("Error loading manage access page:", err);
+        res.status(500).send("Server error.");
+    }
+});
+
+// 2. Handle the form submission to update permissions
+router.post('/admin/update-access/:id', requireAdminLogin, requireOwner, async (req, res) => {
+    const client = await pool.connect();
+    try {
+        const { id } = req.params;
+        let { permissions } = req.body; // This will be an array or a single string
+
+        // Ensure permissions is always an array
+        if (!permissions) {
+            permissions = [];
+        } else if (!Array.isArray(permissions)) {
+            permissions = [permissions];
+        }
+
+        await client.query('BEGIN'); // Start transaction
+
+        // First, delete all old permissions for this admin
+        await client.query('DELETE FROM admin_permissions WHERE admin_id = $1', [id]);
+
+        // Then, insert the new permissions
+        if (permissions.length > 0) {
+            const insertPromises = permissions.map(section => {
+                return client.query('INSERT INTO admin_permissions (admin_id, allowed_section) VALUES ($1, $2)', [id, section]);
+            });
+            await Promise.all(insertPromises);
+        }
+
+        await client.query('COMMIT'); // Commit transaction
+        res.redirect('/admin/manage-admins');
+
+    } catch (err) {
+        await client.query('ROLLBACK'); // Rollback on error
+        console.error("Error updating permissions:", err);
+        res.status(500).send("Server error while updating permissions.");
+    } finally {
+        client.release(); // Release the client back to the pool
+    }
+});
+
+// --- END: NEW ROUTES ---
+
 
 // Access request routes
 router.post('/admin/request-access', requireAdminLogin, async (req, res) => {

@@ -4,7 +4,6 @@
   <main class="dashboard-main">
     <h1>Manage Administrators</h1>
 
-    <!-- Form to Add a New Admin -->
     <h2>Add New Admin</h2>
     <form action="/admin/add-admin" method="POST" style="margin-bottom: 2rem;">
       <div style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end;">
@@ -20,7 +19,6 @@
           <label for="password">Password</label>
           <input type="password" id="password" name="password" required>
         </div>
-        <!-- Primary Role Selection -->
         <div style="flex: 1; min-width: 150px;">
             <label>Primary Role</label>
             <div style="padding-top: 8px;">
@@ -30,7 +28,6 @@
                 <label for="roleTypeAdmin" style="font-weight: normal;">Admin</label>
             </div>
         </div>
-        <!-- Conditional Specific Role Input -->
         <div id="role-input-container" style="flex: 1; min-width: 150px;">
             <label for="role">Specific Role Type</label>
             <input type="text" id="role" name="role" value="admin" required>
@@ -42,7 +39,6 @@
 
     <hr>
 
-    <!-- Table of Existing Admins -->
     <h2>Existing Admins</h2>
     <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
       <thead>
@@ -61,6 +57,9 @@
               <td style="padding: 10px; border: 1px solid #ddd;"><%= admin.email %></td>
               <td style="padding: 10px; border: 1px solid #ddd;"><%= admin.role %></td>
               <td class="no-print" style="padding: 10px; border: 1px solid #ddd; display: flex; gap: 10px; align-items: center;">
+                <% if (admin.role !== 'owner') { %>
+                    <a href="/admin/manage-access/<%= admin.id %>" style="background-color: #ffc107; color: black; padding: 5px 10px; border-radius: 5px; text-decoration: none;">Access</a>
+                <% } %>
                 <a href="mailto:<%= admin.email %>" style="background-color: #007bff; color: white; padding: 5px 10px; border-radius: 5px; text-decoration: none;">Mail</a>
                 <% if (admin.id != currentAdminId) { %>
                   <form action="/admin/delete-admin/<%= admin.id %>" method="POST" onsubmit="return confirm('Are you sure you want to delete this admin?');" style="margin: 0;">

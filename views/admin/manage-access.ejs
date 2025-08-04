@@ -1,0 +1,34 @@
+<%- include('../partials/header') %>
+
+<div class="dashboard-layout">
+  <main class="dashboard-main">
+    <h1>Manage Access for <%= admin.name %></h1>
+    <p>Select the sections this administrator is allowed to view and manage.</p>
+
+    <form action="/admin/update-access/<%= admin.id %>" method="POST">
+      <div style="font-size: 1.1rem; margin-top: 1.5rem;">
+        <% allSections.forEach(section => { %>
+          <div style="margin-bottom: 1rem;">
+            <input 
+              type="checkbox" 
+              name="permissions" 
+              value="<%= section %>" 
+              id="perm-<%= section.toLowerCase() %>"
+              <%= currentPermissions.includes(section) ? 'checked' : '' %>
+            >
+            <label for="perm-<%= section.toLowerCase() %>" style="font-weight: normal; cursor: pointer;"><%= section %></label>
+          </div>
+        <% }) %>
+      </div>
+
+      <div style="margin-top: 2rem;">
+        <button type="submit" style="padding: 10px 20px;">Save Changes</button>
+        <a href="/admin/manage-admins" style="margin-left: 1rem; text-decoration: none;">Cancel</a>
+      </div>
+    </form>
+  </main>
+
+  <%- include('../partials/admin-sidebar') %>
+</div>
+
+<%- include('../partials/footer') %>
