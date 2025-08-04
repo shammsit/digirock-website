@@ -318,6 +318,19 @@ router.get('/admin/mails', requireAdminLogin, checkPermission('Mails'), async (r
   }
 });
 
+// START: NEW CODE BLOCK FOR DELETING MAIL
+router.post('/admin/mails/delete/:id', requireAdminLogin, checkPermission('Mails'), async (req, res) => {
+  const { id } = req.params;
+  try {
+    await pool.query('DELETE FROM contact_messages WHERE id = $1', [id]);
+    res.redirect('/admin/mails');
+  } catch (err) {
+    console.error("Error deleting mail:", err);
+    res.status(500).send("Server error while deleting mail.");
+  }
+});
+// END: NEW CODE BLOCK
+
 // Access request routes
 router.post('/admin/request-access', requireAdminLogin, async (req, res) => {
   const { section } = req.body;
