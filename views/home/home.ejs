@@ -1,34 +1,37 @@
 <%- include('../partials/header') %>
 
+<!-- Link to the new home page stylesheet -->
+<link rel="stylesheet" href="/css/home-style.css">
+
 <!-- Main Content -->
 <main class="page-content">
+  
   <!-- Hero Section -->
-  <section style="text-align: center; margin-top: 30px;">
-    <h1 style="font-size: 2.5rem; font-weight: 700;">Welcome to Your Digital Growth Partner</h1>
-    <p style="max-width: 800px; margin: 20px auto; font-size: 1.1rem; color: #555;">
-      We are a multifunctional platform dedicated to empowering individuals and businesses in the digital world.
-      From helping you kickstart your freelance journey to offering essential online services — we’re here to support your growth, every step of the way.
-      Stay tuned as we continue to expand our services to meet your evolving needs.
+  <section class="home-hero">
+    <h1>Your Digital Growth Partner</h1>
+    <p>
+      We are a multifunctional platform dedicated to empowering individuals and businesses in the digital world. From kickstarting your freelance journey to offering essential online services — we’re here to support your growth, every step of the way.
     </p>
+    <a href="/signup" class="get-started-btn">Get Started</a>
   </section>
 
   <!-- Services Offered -->
-  <section style="margin-top: 50px; padding: 0 15px;">
-    <h2 style="text-align: center;">Our Current Services</h2>
-    <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; margin-top: 30px;">
-      <div style="flex: 1 1 250px; max-width: 300px; background: var(--card-bg); padding: 20px; border-radius: 12px; box-shadow: var(--shadow);">
-        <h3 style="margin-bottom: 10px;">Business Development Help</h3>
-        <p style="color: #666;">Get guidance on launching, structuring, and scaling your freelance or digital services business with expert support.</p>
+  <section class="services-section">
+    <h2>Our Current Services</h2>
+    <div class="services-grid">
+      <div class="service-card">
+        <h3>Business Development</h3>
+        <p>Get guidance on launching, structuring, and scaling your freelance or digital services business with expert support.</p>
       </div>
 
-      <div style="flex: 1 1 250px; max-width: 300px; background: var(--card-bg); padding: 20px; border-radius: 12px; box-shadow: var(--shadow);">
-        <h3 style="margin-bottom: 10px;">Freelancing Support</h3>
-        <p style="color: #666;">Learn how to find clients, create portfolios, and manage freelancing work effectively in today’s competitive market.</p>
+      <div class="service-card">
+        <h3>Freelancing Support</h3>
+        <p>Learn how to find clients, create portfolios, and manage your work effectively in today’s competitive market.</p>
       </div>
 
-      <div style="flex: 1 1 250px; max-width: 300px; background: var(--card-bg); padding: 20px; border-radius: 12px; box-shadow: var(--shadow);">
-        <h3 style="margin-bottom: 10px;">Online Services</h3>
-        <p style="color: #666;">We provide a growing range of digital services including design, development, consulting, and much more — updated regularly.</p>
+      <div class="service-card">
+        <h3>Online Services</h3>
+        <p>We provide a growing range of digital services including design, development, and consulting — updated regularly.</p>
       </div>
     </div>
   </section>
@@ -48,7 +51,11 @@
       <div class="social-links">
         <% socialLinks.forEach(link => { %>
           <a href="<%= link.link_url %>" target="_blank" rel="noopener noreferrer" title="<%= link.platform_name %>">
-            <i data-lucide="<%= link.platform_key %>"></i>
+            <% if (link.platform_key === 'whatsapp-svg') { %>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="social-icon-svg" fill="currentColor" width="32px" height="32px"><path d="M16.6,14.2l-1.5-0.8c-0.4-0.2-0.7-0.3-1,0.1l-0.7,0.8c-0.2,0.3-0.5,0.3-0.8,0.2c-0.7-0.3-1.8-1-2.9-2.1c-0.8-0.8-1.4-1.6-1.8-2.5c-0.1-0.3,0-0.6,0.2-0.8l0.7-0.8c0.3-0.3,0.2-0.7,0-1l-0.8-1.5c-0.2-0.4-0.5-0.5-0.9-0.5h-0.8c-0.4,0-0.8,0.2-1,0.5C5.1,5.3,5,6,5.1,6.6c0.3,1.9,1.2,3.7,2.6,5.1c1.8,1.8,3.9,2.9,6.2,3.3c0.6,0.1,1.2,0,1.7-0.5c0.3-0.3,0.5-0.7,0.5-1.1v-0.8C17.1,14.7,16.9,14.4,16.6,14.2z M12,2C6.5,2,2,6.5,2,12s4.5,10,10,10c5.5,0,10-4.5,10-10S17.5,2,12,2z M12,20.5c-4.7,0-8.5-3.8-8.5-8.5S7.3,3.5,12,3.5s8.5,3.8,8.5,8.5S16.7,20.5,12,20.5z"/></svg>
+            <% } else { %>
+              <i data-lucide="<%= link.platform_key %>"></i>
+            <% } %>
           </a>
         <% }) %>
       </div>
@@ -93,23 +100,6 @@
             }
           }
         }
-      });
-    }
-
-    // Sidebar toggle
-    const menuToggle = document.getElementById('menu-toggle');
-    const sidebar = document.getElementById('left-sidebar');
-    const sidebarClose = document.getElementById('sidebar-close');
-
-    if (menuToggle && sidebar) {
-      menuToggle.addEventListener('click', () => {
-        sidebar.classList.toggle('collapsed');
-      });
-    }
-
-    if (sidebarClose && sidebar) {
-      sidebarClose.addEventListener('click', () => {
-        sidebar.classList.add('collapsed');
       });
     }
   });
