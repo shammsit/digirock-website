@@ -99,7 +99,6 @@ router.post('/register', async (req, res) => {
     }
 });
 
-// --- THIS IS THE FIX for "Cannot POST /login" ---
 // Handle the user login form submission
 router.post('/login', async (req, res) => {
     const { user_id_or_email, password } = req.body;
