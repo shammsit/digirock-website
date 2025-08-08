@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>digiROCK solution</title>
 
+  <!-- START: ADDED FAVICON LINK -->
+  <link rel="icon" href="/images/DIGIROCK_logo_original.png" type="image/png">
+  <!-- END: ADDED FAVICON LINK -->
+
   <!-- Google Fonts: Poppins -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -53,7 +57,17 @@
       <nav class="side-nav">
         <a href="/">🏠 Home</a>
         <a href="/contact">📞 Contact Us</a>
-        <a href="/login">🔐 Login</a>
+        
+        <% if (user) { %>
+            <!-- Show these links if user is logged in -->
+            <a href="/user-dashboard">👤 Dashboard</a>
+            <a href="/logout-user">🚪 Logout</a>
+        <% } else { %>
+            <!-- Show these links if user is logged out -->
+            <a href="/login">🔐 Login</a>
+            <a href="/signup">📝 Sign-Up</a>
+        <% } %>
+        
         <hr class="sidebar-divider">
 
         <div class="nav-dropdown">
@@ -66,7 +80,6 @@
             </div>
         </div>
         
-        <a href="/signup">📝 Sign-Up</a>
         <a href="/noticeboard">📋 Noticeboard</a>
         <a href="/rate-us">⭐ Rate-Us</a>
         <a href="/donate">💰 Donate-Us</a>
