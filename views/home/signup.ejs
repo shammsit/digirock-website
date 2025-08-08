@@ -1,29 +1,181 @@
 <%- include('../partials/header') %>
 
-<div class="container">
-  <h1>Create Your Account</h1>
-  <form>
-    <div>
-      <label for="name">Your Name</label>
-      <input type="text" id="name" name="name" required>
-    </div>
-    <br>
-    <div>
-      <label for="email">Email</label>
-      <input type="email" id="email" name="email" required>
-    </div>
-    <br>
-    <div>
-      <label for="password">Password</label>
-      <input type="password" id="password" name="password" required>
-    </div>
-    <br>
-    <div>
-      <label for="password-confirm">Confirm Password</label>
-      <input type="password" id="password-confirm" name="passwordConfirm" required>
-    </div>
-    <br>
-    <button type="submit">Create Account</button>
-  </form>
+<!-- Link to the new signup stylesheet -->
+<link rel="stylesheet" href="/css/signup-style.css">
+
+<div class="signup-container">
+    <h1>Create Your Account</h1>
+
+    <form id="signup-form" action="/register" method="POST">
+        <!-- Step 1: Login Details -->
+        <div id="step-1" class="form-step active">
+            <div class="form-grid">
+                <div class="input-group full-width">
+                    <label for="user_id">User ID for Login</label>
+                    <input type="text" id="user_id" name="user_id" required>
+                </div>
+                <div class="input-group">
+                    <label for="password">Create Password</label>
+                    <input type="password" id="password" name="password" required pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}" title="Must contain at least one number, one uppercase, one lowercase letter, one special character, and at least 8 or more characters">
+                    <small class="password-requirements">Min 8 chars, 1 uppercase, 1 number, 1 special char.</small>
+                </div>
+                <div class="input-group">
+                    <label for="verify_password">Verify Password</label>
+                    <input type="password" id="verify_password" name="verify_password" required>
+                </div>
+            </div>
+            <div class="button-group">
+                <button type="button" class="btn btn-primary" onclick="nextStep(2)">Next</button>
+            </div>
+        </div>
+
+        <!-- Step 2: Personal Details -->
+        <div id="step-2" class="form-step">
+            <div class="form-grid">
+                <div class="input-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div class="input-group">
+                    <label for="contact_number">Contact Number</label>
+                    <input type="tel" id="contact_number" name="contact_number">
+                </div>
+                <div class="input-group full-width">
+                    <label for="email">Email ID</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="input-group full-width">
+                    <label for="address">Address</label>
+                    <input type="text" id="address" name="address">
+                </div>
+                 <div class="input-group">
+                    <label for="register_as">Register As</label>
+                    <select id="register_as" name="register_as">
+                        <option>Digital Setup Client</option>
+                        <option>Developer</option>
+                        <option>Job Seeker</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="referral_code">Referral Code (Optional)</label>
+                    <input type="text" id="referral_code" name="referral_code">
+                </div>
+            </div>
+            <div class="button-group">
+                <button type="button" class="btn btn-secondary" onclick="prevStep(1)">Back</button>
+                <button type="button" class="btn btn-primary" onclick="sendOtp()">Send OTP to Mail</button>
+            </div>
+        </div>
+
+        <!-- Step 3: OTP & Captcha -->
+        <div id="step-3" class="form-step">
+            <p>An OTP has been sent to your email. Please enter it below.</p>
+            <div class="form-grid">
+                <div class="input-group full-width">
+                    <label for="otp">Enter OTP</label>
+                    <input type="text" id="otp" name="otp" required>
+                </div>
+                <div class="input-group full-width">
+                    <label for="captcha">Enter the text below</label>
+                     <div id="captcha-container">
+                        <span id="captcha-code"></span>
+                        <input type="text" id="captcha" name="captcha" required>
+                    </div>
+                </div>
+            </div>
+            <div class="button-group">
+                <button type="button" class="btn btn-secondary" onclick="prevStep(2)">Back</button>
+                <button type="submit" class="btn btn-primary">Register</button>
+            </div>
+        </div>
+    </form>
 </div>
+
+<script>
+    let currentStep = 1;
+    const form = document.getElementById('signup-form');
+    let captchaText = '';
+
+    function showStep(step) {
+        document.querySelectorAll('.form-step').forEach(el => el.classList.remove('active'));
+        document.getElementById(`step-${step}`).classList.add('active');
+        currentStep = step;
+        if (step === 3) {
+            generateCaptcha();
+        }
+    }
+
+    function nextStep(step) {
+        if (validateStep(currentStep)) {
+            showStep(step);
+        }
+    }
+
+    function prevStep(step) {
+        showStep(step);
+    }
+
+    function validateStep(step) {
+        if (step === 1) {
+            const password = document.getElementById('password').value;
+            const verify = document.getElementById('verify_password').value;
+            const pattern = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}/;
+            if (!pattern.test(password)) {
+                alert('Password does not meet the requirements.');
+                return false;
+            }
+            if (password !== verify) {
+                alert('Passwords do not match.');
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    async function sendOtp() {
+        const email = document.getElementById('email').value;
+        if (!email) {
+            alert('Please enter your email address.');
+            return;
+        }
+        try {
+            const response = await fetch('/send-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email })
+            });
+            const result = await response.json();
+            if (response.ok) {
+                alert('OTP sent successfully!');
+                nextStep(3);
+            } else {
+                alert(result.message || 'Failed to send OTP.');
+            }
+        } catch (error) {
+            alert('An error occurred. Please try again.');
+        }
+    }
+
+    function generateCaptcha() {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        captchaText = '';
+        for (let i = 0; i < 6; i++) {
+            captchaText += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        document.getElementById('captcha-code').textContent = captchaText;
+    }
+
+    form.addEventListener('submit', function(e) {
+        const captchaInput = document.getElementById('captcha').value;
+        if (captchaInput.toLowerCase() !== captchaText.toLowerCase()) {
+            e.preventDefault();
+            alert('Captcha does not match. Please try again.');
+            generateCaptcha();
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => showStep(1));
+</script>
+
 <%- include('../partials/footer') %>
