@@ -113,3 +113,23 @@
     text-decoration: line-through;
     user-select: none;
 }
+
+/* START: NEW STYLES FOR LOGIN LINK */
+.login-link {
+    text-align: center;
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.login-link a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.login-link a:hover {
+    text-decoration: underline;
+}
+/* END: NEW STYLES */
