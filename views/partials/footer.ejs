@@ -22,5 +22,17 @@
   });
 </script>
 
+<script>
+  // This script handles the dropdown menu
+  document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
+    toggle.addEventListener('click', function(event) {
+      event.preventDefault();
+      const dropdownMenu = this.nextElementSibling;
+      this.classList.toggle('open');
+      dropdownMenu.classList.toggle('open');
+    });
+  });
+</script>
+
 </body>
 </html>
