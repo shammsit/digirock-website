@@ -1,18 +1,68 @@
 <%- include('../partials/header') %>
-  <div class="container">
-    <h1>Login Page</h1>
-    <form>
-      <div>
-        <label for="email">Email</label>
-        <input type="email" id="email" name="email" required>
+
+<!-- Link to the new login stylesheet -->
+<link rel="stylesheet" href="/css/login-style.css">
+
+<div class="login-container">
+    <h1>User Login</h1>
+    
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div style="padding: 1rem; margin-bottom: 1rem; border-radius: 5px; background-color: #f8d7da; color: #721c24;">
+        <%= error %>
       </div>
-      <br>
-      <div>
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password" required>
-      </div>
-      <br>
-      <button type="submit">Login</button>
+    <% } %>
+
+    <form id="login-form" action="/login" method="POST">
+        <div class="input-group">
+            <label for="user_id_or_email">User ID or Email</label>
+            <input type="text" id="user_id_or_email" name="user_id_or_email" required>
+        </div>
+        <div class="input-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <div class="input-group">
+            <label for="captcha">Enter the text below</label>
+            <div id="captcha-container">
+                <span id="captcha-code" title="Click to refresh"></span>
+                <input type="text" id="captcha" name="captcha" required>
+            </div>
+        </div>
+        <button type="submit" class="btn-login">Login</button>
     </form>
-  </div>
+
+    <div class="login-links">
+        <a href="#">Forgot Password?</a>
+        <a href="/signup">Create Account</a>
+    </div>
+</div>
+
+<script>
+    const form = document.getElementById('login-form');
+    let captchaText = '';
+
+    function generateCaptcha() {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        captchaText = '';
+        for (let i = 0; i < 5; i++) {
+            captchaText += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        document.getElementById('captcha-code').textContent = captchaText;
+    }
+
+    form.addEventListener('submit', function(e) {
+        const captchaInput = document.getElementById('captcha').value;
+        if (captchaInput.toLowerCase() !== captchaText.toLowerCase()) {
+            e.preventDefault();
+            alert('Captcha does not match. Please try again.');
+            generateCaptcha();
+        }
+    });
+    
+    document.getElementById('captcha-code').addEventListener('click', generateCaptcha);
+
+    // Generate the first captcha when the page loads
+    document.addEventListener('DOMContentLoaded', generateCaptcha);
+</script>
+
 <%- include('../partials/footer') %>
