@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>digiROCK solution</title>
 
+  <!-- Google Fonts: Poppins -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -15,16 +16,19 @@
 
 <div class="page-wrapper">
 
+  <!-- Main Header -->
   <header class="main-header">
     <div class="header-left">
+      <!-- Sidebar toggle button -->
       <button id="sidebar-toggle" class="sidebar-toggle-btn">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <line x1="3" y1="12" x2="21" y2="12"></line>
           <line x1="3" y1="6" x2="21" y2="6"></line>
           <line x1="3" y1="18" x2="21" y2="18"></line>
         </svg>
       </button>
 
+      <!-- Logo section -->
       <div class="logo-container">
         <img src="/images/DIGIROCK_logo_original.png" alt="digiROCK Logo" class="logo-img">
         <div class="logo-text">
@@ -39,6 +43,7 @@
     </div>
   </header>
 
+  <!-- Layout: Sidebar + Content -->
   <div class="content-wrapper">
 
     <aside id="left-sidebar" class="left-sidebar collapsed">
@@ -50,16 +55,6 @@
         <a href="/contact">📞 Contact Us</a>
         <a href="/login">🔐 Login</a>
         <hr class="sidebar-divider">
-
-        <div class="nav-dropdown">
-            <a href="#" class="dropdown-toggle">
-                <span>🛠️ Our Services</span>
-                <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-            </a>
-            <div class="dropdown-menu">
-                <a href="#">Be Digital</a>
-                </div>
-        </div>
         <a href="/signup">📝 Sign-Up</a>
         <a href="/noticeboard">📋 Noticeboard</a>
         <a href="/rate-us">⭐ Rate-Us</a>
@@ -72,4 +67,4 @@
     <div id="overlay" class="overlay collapsed"></div>
 
     <main id="page-content" class="page-content">
-
+      <!-- Page-specific content will be injected here -->
