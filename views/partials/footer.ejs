@@ -1,8 +1,9 @@
-    </main>
+</main>
   </div>
 </div>
 
 <script>
+  // This script handles the main sidebar for mobile
   document.addEventListener('DOMContentLoaded', function() {
     const sidebarToggle = document.getElementById('sidebar-toggle');
     const sidebarClose = document.getElementById('sidebar-close');
@@ -21,5 +22,15 @@
   });
 </script>
 
+<script>
+  document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
+    toggle.addEventListener('click', function(event) {
+      event.preventDefault();
+      const dropdownMenu = this.nextElementSibling;
+      this.classList.toggle('open');
+      dropdownMenu.classList.toggle('open');
+    });
+  });
+</script>
 </body>
 </html>
