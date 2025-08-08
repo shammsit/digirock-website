@@ -14,7 +14,6 @@ const pool = new Pool({
     rejectUnauthorized: false
   }
 });
-// This ensures all database operations use the correct timezone
 pool.on('connect', (client) => {
   client.query("SET TIME ZONE 'Asia/Kolkata'");
 });
@@ -63,6 +62,12 @@ router.get('/donate', (req, res) => { res.render('home/donate'); });
 router.get('/feedback', (req, res) => { res.render('home/feedback'); });
 router.get('/rate-us', (req, res) => { res.render('home/rate-us'); });
 router.get('/thank-you', (req, res) => { res.render('home/thank-you'); });
+
+// START: NEW ROUTE
+router.get('/make-your-service-digital', (req, res) => {
+    res.render('home/make-your-service-digital');
+});
+// END: NEW ROUTE
 
 router.get('/payment-success', async (req, res) => {
   const paymentId = req.query.id;
