@@ -1,20 +1,49 @@
 <%- include('../partials/header') %>
 
 <!-- Main Content -->
-<main>
-  <h1>Welcome to My Website!</h1>
-  <p>This is my introduction. It's great to have you here.</p>
+<main class="page-content">
+  <!-- Hero Section -->
+  <section style="text-align: center; margin-top: 30px;">
+    <h1 style="font-size: 2.5rem; font-weight: 700;">Welcome to Your Digital Growth Partner</h1>
+    <p style="max-width: 800px; margin: 20px auto; font-size: 1.1rem; color: #555;">
+      We are a multifunctional platform dedicated to empowering individuals and businesses in the digital world.
+      From helping you kickstart your freelance journey to offering essential online services — we’re here to support your growth, every step of the way.
+      Stay tuned as we continue to expand our services to meet your evolving needs.
+    </p>
+  </section>
 
-  <div class="container" style="margin-top: 40px; text-align: center;">
+  <!-- Services Offered -->
+  <section style="margin-top: 50px; padding: 0 15px;">
+    <h2 style="text-align: center;">Our Current Services</h2>
+    <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; margin-top: 30px;">
+      <div style="flex: 1 1 250px; max-width: 300px; background: var(--card-bg); padding: 20px; border-radius: 12px; box-shadow: var(--shadow);">
+        <h3 style="margin-bottom: 10px;">Business Development Help</h3>
+        <p style="color: #666;">Get guidance on launching, structuring, and scaling your freelance or digital services business with expert support.</p>
+      </div>
+
+      <div style="flex: 1 1 250px; max-width: 300px; background: var(--card-bg); padding: 20px; border-radius: 12px; box-shadow: var(--shadow);">
+        <h3 style="margin-bottom: 10px;">Freelancing Support</h3>
+        <p style="color: #666;">Learn how to find clients, create portfolios, and manage freelancing work effectively in today’s competitive market.</p>
+      </div>
+
+      <div style="flex: 1 1 250px; max-width: 300px; background: var(--card-bg); padding: 20px; border-radius: 12px; box-shadow: var(--shadow);">
+        <h3 style="margin-bottom: 10px;">Online Services</h3>
+        <p style="color: #666;">We provide a growing range of digital services including design, development, consulting, and much more — updated regularly.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Ratings Chart -->
+  <div class="container" style="margin-top: 60px; text-align: center;">
     <h2>User Ratings</h2>
     <div style="width: 100%; max-width: 350px; margin: auto;">
       <canvas id="homepageRatingsChart"></canvas>
     </div>
   </div>
 
-  <!-- START: NEW SOCIAL MEDIA SECTION -->
+  <!-- Social Media Section -->
   <% if (typeof socialLinks !== 'undefined' && socialLinks.length > 0) { %>
-    <div class="container" style="margin-top: 40px; text-align: center;">
+    <div class="container" style="margin-top: 50px; text-align: center;">
       <h2>Follow Us</h2>
       <div class="social-links">
         <% socialLinks.forEach(link => { %>
@@ -25,8 +54,6 @@
       </div>
     </div>
   <% } %>
-  <!-- END: NEW SOCIAL MEDIA SECTION -->
-
 </main>
 
 <!-- Chart.js & Lucide Icons CDN -->
@@ -36,7 +63,7 @@
 <!-- Ratings Chart Script -->
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-    lucide.createIcons(); // Initialize Lucide icons
+    lucide.createIcons();
 
     const ctx = document.getElementById('homepageRatingsChart');
     const chartData = <%- chartData || '{}' %>;
@@ -69,7 +96,7 @@
       });
     }
 
-    // Sidebar toggle functionality
+    // Sidebar toggle
     const menuToggle = document.getElementById('menu-toggle');
     const sidebar = document.getElementById('left-sidebar');
     const sidebarClose = document.getElementById('sidebar-close');
