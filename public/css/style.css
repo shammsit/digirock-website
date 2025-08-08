@@ -258,7 +258,7 @@ form button {
   background: var(--card-bg);
   padding: 30px;
   border-radius: 12px;
-  overflow-x: auto; /* This line adds the horizontal scroll for wide tables */
+  overflow-x: auto;
 }
 
 .dashboard-sidebar {
@@ -323,6 +323,7 @@ form button {
     pointer-events: none;
   }
 }
+
 /* Social Media Links Section */
 .social-links {
   display: flex;
@@ -345,6 +346,13 @@ form button {
   width: 32px;
   height: 32px;
 }
+
+.social-links .social-icon-svg {
+  width: 32px;
+  height: 32px;
+  vertical-align: middle;
+}
+
 /* Dropdown Menu Styles */
 .dropdown-toggle {
   display: flex;
@@ -365,17 +373,22 @@ form button {
   max-height: 0;
   overflow: hidden;
   transition: max-height 0.4s ease-out;
-  background-color: #1a2433; /* Slightly different background for dropdown */
+  background-color: #1a2433;
   border-radius: 0 0 8px 8px;
-  margin: 0 -30px; /* Counteract the padding on parent links */
+  margin: 0 -30px;
   padding: 0 30px;
 }
 
 .dropdown-menu a {
-  padding-left: 45px !important; /* Indent dropdown items */
+  padding-left: 45px !important;
   font-size: 0.9em;
 }
 
 .dropdown-menu.open {
-  max-height: 200px; /* Adjust as needed if you add more items */
+  max-height: 200px;
+}
+
+.dropdown-menu a:hover {
+  background-color: #374151;
+  color: var(--light-text);
 }
