@@ -1,0 +1,82 @@
+<%- include('../../partials/header') %>
+
+<!-- Link to the dashboard stylesheet -->
+<link rel="stylesheet" href="/css/dashboard-style.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<%
+    // Define the dynamic content for each user type
+    const dashboardContent = {
+        'Digital Setup Client': {
+            title: 'Welcome, Client!',
+            description: 'This is your personal space to manage your digital projects. From here, you can initiate new service requests, track the progress of ongoing work, and communicate directly with our development team.',
+            cta: {
+                text: 'Request a New Service',
+                link: '/make-your-service-digital'
+            }
+        },
+        'Developer': {
+            title: 'Welcome, Developer!',
+            description: 'This is your hub for project management and collaboration. Review your assigned tasks, update project statuses, and access our internal resources.',
+            cta: null // No call-to-action button for developers yet
+        },
+        'Job Seeker': {
+            title: 'Welcome, Job Seeker!',
+            description: 'Your journey to a new career opportunity starts here. Manage your profile, browse exclusive job listings, and track the status of your applications all in one place.',
+            cta: {
+                text: 'Browse Job Openings',
+                link: '#' // Link to a future careers page
+            }
+        },
+        'Other': {
+            title: 'Welcome!',
+            description: 'Thank you for joining our community. Your personalized dashboard is being prepared. In the meantime, feel free to explore our services or contact us if you have any questions.',
+            cta: null
+        }
+    };
+
+    // Get the content for the current user, or default to 'Other'
+    const content = dashboardContent[user.register_as] || dashboardContent['Other'];
+%>
+
+<div class="container">
+    <div class="dashboard-grid">
+        <!-- Dashboard Sidebar -->
+        <aside class="dashboard-nav">
+            <div class="profile-header">
+                <div class="profile-avatar"><%= user.name.charAt(0).toUpperCase() %></div>
+                <h3><%= user.name %></h3>
+                <p><%= user.register_as %></p>
+            </div>
+            <ul>
+                <li><a href="#" class="active"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+                <li><a href="#"><i data-lucide="user"></i> My Profile</a></li>
+                <li><a href="#"><i data-lucide="settings"></i> Settings</a></li>
+                <li><a href="/logout-user"><i data-lucide="log-out"></i> Logout</a></li>
+            </ul>
+        </aside>
+
+        <!-- Dynamic Dashboard Content -->
+        <main class="dashboard-content">
+            <h1>Dashboard</h1>
+            
+            <div class="dashboard-card">
+                <h3><%= content.title %></h3>
+                <p><%= content.description %></p>
+            </div>
+            
+            <% if (content.cta) { %>
+                <div class="dashboard-card">
+                    <h3>Next Steps</h3>
+                    <a href="<%= content.cta.link %>" class="btn btn-primary" style="margin-top: 1rem;"><%= content.cta.text %></a>
+                </div>
+            <% } %>
+        </main>
+    </div>
+</div>
+
+<script>
+  lucide.createIcons();
+</script>
+
+<%- include('../../partials/footer') %>
