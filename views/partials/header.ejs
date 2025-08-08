@@ -72,46 +72,4 @@
     <div id="overlay" class="overlay collapsed"></div>
 
     <main id="page-content" class="page-content">
-      ```
 
----
-
-### Step 2: Add CSS for the Dropdown
-
-Next, add the following CSS to the **bottom** of your `public/css/style.css` file. This will style the dropdown and handle its show/hide animation.
-
-
-/* Dropdown Menu Styles */
-.dropdown-toggle {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-}
-
-.dropdown-arrow {
-  transition: transform 0.3s ease;
-}
-
-.dropdown-toggle.open .dropdown-arrow {
-  transform: rotate(180deg);
-}
-
-.dropdown-menu {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.4s ease-out;
-  background-color: #1a2433; /* Slightly different background for dropdown */
-  border-radius: 0 0 8px 8px;
-  margin: 0 -30px; /* Counteract the padding on parent links */
-  padding: 0 30px;
-}
-
-.dropdown-menu a {
-  padding-left: 45px !important; /* Indent dropdown items */
-  font-size: 0.9em;
-}
-
-.dropdown-menu.open {
-  max-height: 200px; /* Adjust as needed if you add more items */
-}
