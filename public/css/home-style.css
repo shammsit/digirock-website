@@ -1,0 +1,92 @@
+/* --- Home Page Specific Styles --- */
+
+/* Hero Section */
+.home-hero {
+    text-align: center;
+    padding: 4rem 1rem;
+    background-color: #f8f9fa;
+    border-radius: 12px;
+    margin-bottom: 4rem;
+}
+
+.home-hero h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 1rem;
+}
+
+.home-hero p {
+    max-width: 800px;
+    margin: 0 auto 2rem auto;
+    font-size: 1.15rem;
+    color: #555;
+    line-height: 1.8;
+}
+
+.get-started-btn {
+    display: inline-block;
+    padding: 14px 35px;
+    background: linear-gradient(to right, var(--accent-color), var(--primary-color));
+    color: var(--light-text);
+    text-decoration: none;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 50px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.get-started-btn:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(74, 0, 224, 0.3);
+}
+
+/* Services Section */
+.services-section {
+    margin-top: 50px;
+    padding: 0 15px;
+}
+
+.services-section h2 {
+    text-align: center;
+    font-size: 2.2rem;
+    margin-bottom: 3rem;
+}
+
+.services-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 30px;
+}
+
+.service-card {
+    flex: 1 1 280px;
+    max-width: 320px;
+    background: var(--card-bg);
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    border-top: 4px solid var(--primary-color);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.service-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
+}
+
+.service-card h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.4rem;
+}
+
+.service-card p {
+    color: #666;
+    line-height: 1.7;
+}
